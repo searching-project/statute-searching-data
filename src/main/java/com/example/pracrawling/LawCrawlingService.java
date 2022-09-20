@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import static com.example.pracrawling.PublicMethod.ObjectsToJSonArray;
+import static com.example.pracrawling.PublicMethod.getOptional;
 
 @Service
 @RequiredArgsConstructor
@@ -117,7 +118,7 @@ public class LawCrawlingService {
         LawDetailDto.ReasonOfRevision reasonOfRevision = laws4 != null ? getReasonOfRevision(laws4) : null;
 
         LawDetailDto lawDetailDto = LawDetailDto.builder()
-                .key(jsonObject.getString("법령키"))
+                .key((String) getOptional(jsonObject.keySet(),"법령키",jsonObject))
                 .basicInfo(basicInfo)
                 .article(article)
                 .addendum(addendum)

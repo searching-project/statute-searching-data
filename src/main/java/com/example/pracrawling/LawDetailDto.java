@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Set;
 
-import static com.example.pracrawling.PublicMethod.ObjectsToJSonArray;
+import static com.example.pracrawling.PublicMethod.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,7 +40,8 @@ public class LawDetailDto{
         public BasicInfo update(JSONObject law){
             JSONObject contantJson;
             ArrayList<LawDetailDto.BasicInfo.Contact> contacts = new ArrayList<>();
-            Object object = law.getJSONObject("연락부서").get("부서단위");
+
+            Object object = getOptional(ObjectsToJSonObject(law.get("연락부서")).keySet(),"부서단위",ObjectsToJSonObject(law.get("연락부서")));
             JSONArray objects = ObjectsToJSonArray(object);
 
             for(int i=0;i<objects.length();i++){
@@ -55,17 +56,17 @@ public class LawDetailDto{
                     .isKorean(law.getString("한글법령여부").equals("Y"))
                     .revision(law.getString("제개정구분"))
                     .koreaName(law.getString("법령명_한글"))
-                    .phoneNumber(law.getString("전화번호"))
+                    .phoneNumber(ObjectToString(getOptional(law.keySet(),"전화번호",law)))
                     .contact(contacts)
                     .effectiveDate(law.getInt("시행일자"))
                     .isEffective(law.getString("공포법령여부").equals("Y"))
                     .competentMinistries(LawDetailDto.BasicInfo.Ministries.builder()
-                            .code(law.getJSONObject("소관부처").getInt("소관부처코드"))
-                            .content(law.getJSONObject("소관부처").getString("content"))
+                            .code(getOptional(law.keySet(),"소관부처",law)==null?-1:law.getJSONObject("소관부처").getInt("소관부처코드"))
+                            .content(getOptional(law.keySet(),"소관부처",law)==null?null:law.getJSONObject("소관부처").getString("content"))
                             .build())
                     .id(law.getString("법령ID"))
                     .number(law.getInt("공포번호"))
-                    .chineseName(law.getString("법령명_한자"))
+                    .chineseName((String) getOptional(law.keySet(),"법령명_한자",law))
                     .classification(LawDetailDto.BasicInfo.Classification.builder()
                             .code(law.getJSONObject("법종구분").getString("법종구분코드"))
                             .content(law.getJSONObject("법종구분").getString("법종구분코드"))
@@ -75,35 +76,36 @@ public class LawDetailDto{
                     .isEdit(law.getString("별표편집여부").equals("Y"))
                     .build();
         }
-        //기본정보
-        //편장절관
-        //제명변경여부
-        //언어
-        //한글법령여부
-        //제개정구분
-        //법령명_한글
-        //전화번호
-        //연락부서
-        //부서단위
-        //소관부처코드
-        //부서연락처
-        //부서명
-        //부서키
-        //소관부처명
-        //시행일자
-        //공포법령여부
-        //소관부처
-        //소관부처코드
-        //content
-        //법령ID
-        //공포번호
-        //법령명_한자
-        //법종구분
-        //법종구분코드
-        //content
-        //공포일자
-        //법령명약칭
-        //별표편집여부
+        /**기본정보
+            편장절관
+            제명변경여부
+            언어
+            한글법령여부
+            제개정구분
+            법령명_한글
+            전화번호
+            연락부서
+                부서단위
+                소관부처코드
+                부서연락처
+                부서명
+                부서키
+                소관부처명
+            시행일자
+            공포법령여부
+            소관부처
+                소관부처코드
+                content
+            법령ID
+            공포번호
+            법령명_한자
+            법종구분
+                법종구분코드
+                content
+            공포일자
+            법령명약칭
+            별표편집여부
+         **/
         private int hepaticJoint;
         private boolean isChange;
         private String language;
@@ -140,7 +142,7 @@ public class LawDetailDto{
                                 .code(jsonObject.getInt("소관부처코드"))
                                 .key(jsonObject.getInt("부서키"))
                                 .name(jsonObject.getString("부서명"))
-                                .phoneNumber((String) jsonObject.get("부서연락처"))
+                                .phoneNumber(ObjectToString(jsonObject.get("부서연락처")))
                                 .build())
                         .build();
             }
@@ -210,18 +212,18 @@ public class LawDetailDto{
                     .build();
         }
 
-        //조문
-        //조문단위
-        //리스트
-        //조문시행일자
-        //조문변경여부
-        //조문제목
-        //조문여부
-        //조문키
-        //조문번호
-        //조문이동이전
-        //조문이동이후
-        //조문내용
+        /**조문
+            조문단위 [리스트]
+                    조문시행일자
+                    조문변경여부
+                    조문제목
+                    조문여부
+                    조문키
+                    조문번호
+                    조문이동이전
+                    조문이동이후
+                    조문내용
+         **/
         ArrayList<ArticleDetail> details = new ArrayList<>();
 
         @AllArgsConstructor
@@ -241,23 +243,23 @@ public class LawDetailDto{
 
             @Override
             public ArticleDetail update(JSONObject jsonObject) {
+                Set<String> keys = jsonObject.keySet();
                 ArrayList<String> contents = new ArrayList<>();
                 Object contentObject = jsonObject.get("조문내용");
                 JSONArray contentArray = ObjectsToJSonArray(contentObject);
                 for (int j = 0; j < contentArray.length(); j++) {
                     contents.add(contentArray.get(j).toString());
                 }
-                return LawDetailDto.Article.ArticleDetail.builder()
-                        .date(jsonObject.getInt("조문시행일자"))
-                        .isChanged(jsonObject.getString("조문변경여부").equals("Y"))
-                        .title(jsonObject.getString("조문제목"))
-                        .isArticle(jsonObject.getString("조문여부").equals("Y"))
-                        .key(jsonObject.getString("조문키"))
-                        .number(jsonObject.getInt("조문번호"))
-                        .moveBefore(jsonObject.getString("조문이동이전"))
-                        .moveAfter(jsonObject.getString("조문이동이후"))
-                        .content(contents)
-                        .build();
+                this.date = jsonObject.getInt("조문시행일자");
+                this.isChanged = jsonObject.getString("조문변경여부").equals("Y");
+                this.title = (String) getOptional(keys,"조문제목", jsonObject);
+                this.isArticle = jsonObject.getString("조문여부").equals("Y");
+                this.key = ObjectToString(jsonObject.get("조문키"));
+                this.number = jsonObject.getInt("조문번호");
+                this.moveBefore = jsonObject.getString("조문이동이전");
+                this.moveAfter = jsonObject.getString("조문이동이후");
+                this.content = contents;
+                return this;
             }
 
         }
@@ -269,13 +271,13 @@ public class LawDetailDto{
     @Getter
     @Builder
     static class Addendum implements LawObject{
-        //부칙
-        //부칙단위
-        //리스트
-        //부칙공포일자
-        //부칙키
-        //부칙공포번호
-        //부칙내용
+        /**부칙
+            부칙단위 [리스트]
+                부칙공포일자
+                부칙키
+                부칙공포번호
+                부칙내용
+         **/
         ArrayList<AddendumDetail> details = new ArrayList<>();
 
         @Override
@@ -300,20 +302,20 @@ public class LawDetailDto{
         static class AddendumDetail implements LawObject{
             int date;
             Long key;
-            int number;
+            String number;
             ArrayList<String> content;
 
             @Override
             public AddendumDetail update(JSONObject jsonObject) {
                 ArrayList<String> contents = new ArrayList<>();
-                JSONArray contentArray = jsonObject.getJSONArray("부칙내용");
+                JSONArray contentArray = ObjectsToJSonArray(jsonObject.get("부칙내용"));
                 for(int j=0; j<contentArray.length();j++){
                     contents.add(contentArray.get(j).toString());
                 }
                 return LawDetailDto.Addendum.AddendumDetail.builder()
                         .date(jsonObject.getInt("부칙공포일자"))
                         .key(jsonObject.getLong("부칙키"))
-                        .number(Integer.parseInt(jsonObject.getString("부칙공포번호")))
+                        .number(ObjectToString(jsonObject.get("부칙공포번호")))
                         .content(contents)
                         .build();
             }
