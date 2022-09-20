@@ -104,14 +104,14 @@ public class LawCrawlingService {
         JSONObject laws = lawSearch.getJSONObject("기본정보");
         JSONObject laws1 = lawSearch.getJSONObject("조문");
         JSONObject laws2 = lawSearch.getJSONObject("부칙");
-        JSONObject laws3 = lawSearch.getJSONObject("개정문");
+        JSONObject laws3 = keys.contains("개정문")?lawSearch.getJSONObject("개정문"):null;
         JSONObject laws4 = keys.contains("제개정이유")?lawSearch.getJSONObject("제개정이유"):null;
 
         LawDetailDto.BasicInfo basicInfo = getBasicInfo(laws);
         LawDetailDto.Article article = getArticle(laws1);
         LawDetailDto.Addendum addendum = getAddendum(laws2);
-        LawDetailDto.Amendment amendment = getAmendment(laws3);
-        LawDetailDto.ReasonOfRevision reasonOfRevision = getReasonOfRevision(laws4);
+        LawDetailDto.Amendment amendment = laws3!=null?getAmendment(laws3):null;
+        LawDetailDto.ReasonOfRevision reasonOfRevision = laws4!=null?getReasonOfRevision(laws4):null;
         LawDetailDto lawDetailDto = LawDetailDto.builder()
 //                .key(jsonObject.getString("법령키"))
                 .basicInfo(basicInfo)
