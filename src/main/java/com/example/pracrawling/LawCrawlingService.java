@@ -17,6 +17,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Set;
 
+import static com.example.pracrawling.PublicMethod.ObjectsToJSonArray;
+
 @Service
 @RequiredArgsConstructor
 public class LawCrawlingService {
@@ -54,7 +56,7 @@ public class LawCrawlingService {
             JSONObject law = (JSONObject) laws.get(i);
 
             int id = (int) law.get("id");
-//             (String) law.get("법령일련번호");
+            law.get("법령일련번호");
             law.get("현행연혁코드");
             law.get("법령명한글");
             law.get("법령약칭명");
@@ -113,7 +115,7 @@ public class LawCrawlingService {
         LawDetailDto.Amendment amendment = laws3!=null?getAmendment(laws3):null;
         LawDetailDto.ReasonOfRevision reasonOfRevision = laws4!=null?getReasonOfRevision(laws4):null;
         LawDetailDto lawDetailDto = LawDetailDto.builder()
-//                .key(jsonObject.getString("법령키"))
+                .key(jsonObject.getString("법령키"))
                 .basicInfo(basicInfo)
                 .article(article)
                 .addendum(addendum)
@@ -167,7 +169,7 @@ public class LawCrawlingService {
             detailArrayList.add(LawDetailDto.Addendum.AddendumDetail.builder()
                     .date(jsonObject.getInt("부칙공포일자"))
                     .key(jsonObject.getLong("부칙키"))
-//                            .number(jsonObject.getString("부칙공포번호"))
+                    .number((Integer) jsonObject.get("부칙공포번호"))
                     .content(contents)
                     .build());
         }else{
@@ -207,9 +209,9 @@ public class LawCrawlingService {
             }
             detailArrayList.add(LawDetailDto.Article.ArticleDetail.builder()
                     .date(jsonObject.getInt("조문시행일자"))
-                    .isChanged(jsonObject.getString("조문변경여부").equals("Y")?true:false)
-//                    .title(jsonObject.getString("조문제목"))
-                    .isArticle(jsonObject.getString("조문여부").equals("Y")?true:false)
+                    .isChanged(jsonObject.getString("조문변경여부").equals("Y"))
+                    .title(jsonObject.getString("조문제목"))
+                    .isArticle(jsonObject.getString("조문여부").equals("Y"))
                     .key(jsonObject.getString("조문키"))
                     .number(jsonObject.getInt("조문번호"))
                     .moveBefore(jsonObject.getString("조문이동이전"))
@@ -220,18 +222,6 @@ public class LawCrawlingService {
         return LawDetailDto.Article.builder()
                 .details(detailArrayList)
                 .build();
-    }
-    public JSONArray ObjectsToJSonArray(Object object){
-        JSONArray objects = new JSONArray();
-        if(object instanceof JSONObject){
-            JSONObject jsonObject = (JSONObject) object;
-            objects.put(jsonObject);
-        }else if(object instanceof JSONArray){
-            objects = (JSONArray) object;
-        }else if(object instanceof String){
-            objects.put(object);
-        }
-        return objects;
     }
 
     public LawDetailDto.BasicInfo getBasicInfo(JSONObject law){
@@ -247,15 +237,15 @@ public class LawCrawlingService {
 
            return LawDetailDto.BasicInfo.builder()
                     .hepaticJoint(law.getInt("편장절관"))
-                    .isChange(law.getString("제명변경여부").equals("Y")?true:false)
+                    .isChange(law.getString("제명변경여부").equals("Y"))
                     .language(law.getString("언어"))
-                    .isKorean(law.getString("한글법령여부").equals("Y")?true:false)
+                    .isKorean(law.getString("한글법령여부").equals("Y"))
                     .revision(law.getString("제개정구분"))
                     .koreaName(law.getString("법령명_한글"))
                     .phoneNumber(law.getString("전화번호"))
                     .contact(contacts)
                     .effectiveDate(law.getInt("시행일자"))
-                    .isEffective(law.getString("공포법령여부").equals("Y")?true:false)
+                    .isEffective(law.getString("공포법령여부").equals("Y"))
                     .competentMinistries(LawDetailDto.BasicInfo.Ministries.builder()
                             .code(law.getJSONObject("소관부처").getInt("소관부처코드"))
                             .content(law.getJSONObject("소관부처").getString("content"))
@@ -269,7 +259,7 @@ public class LawCrawlingService {
                             .build())
                     .date(law.getInt("공포일자"))
                     .abbreviation(law.getString("법령명약칭"))
-                    .isEdit(law.getString("별표편집여부").equals("Y")?true:false)
+                    .isEdit(law.getString("별표편집여부").equals("Y"))
                     .build();
         
     }
