@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 @NoArgsConstructor
@@ -51,13 +52,13 @@ public class LawDetailDto {
             //법령명_한자
             //법종구분
                 //법종구분코드
-                //c
+                //content
             //공포일자
             //법령명약칭
             //별표편집여부
         private int hepaticJoint;
         private boolean isChange;
-        private String languahe;
+        private String language;
         private boolean isKorean;
         private String revision;
         private String koreaName;
@@ -77,6 +78,18 @@ public class LawDetailDto {
                 String departmentName;
                 int key;
                 String name;
+            }
+
+           static Contact update(JSONObject contantJson){
+               return LawDetailDto.BasicInfo.Contact.builder()
+                        .departmentUnit(LawDetailDto.BasicInfo.Contact.Unit.builder()
+                                .departmentName(contantJson.getString("소관부처명"))
+                                .code(contantJson.getInt("소관부처코드"))
+                                .key(contantJson.getInt("부서키"))
+                                .name(contantJson.getString("부서명"))
+                                .phoneNumber((String) contantJson.get("부서연락처"))
+                                .build())
+                        .build();
             }
         }
         private int effectiveDate;
@@ -134,8 +147,8 @@ public class LawDetailDto {
             String key;
             int number;
             String moveBefore;
-            String mobeAfter;
             String content;
+            String moveAfter;
 
         }
 
