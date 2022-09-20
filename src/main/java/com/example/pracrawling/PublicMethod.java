@@ -3,6 +3,10 @@ package com.example.pracrawling;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 public class PublicMethod {
 
     public static JSONArray ObjectsToJSonArray(Object object){
@@ -16,5 +20,14 @@ public class PublicMethod {
             objects.put(object);
         }
         return objects;
+    }
+    public static JSONObject ObjectsToJSonObject(Object object){
+        JSONObject jsonObject = new JSONObject();
+        if(object instanceof JSONObject){
+            return (JSONObject) object;
+        }else if(object instanceof String){
+            jsonObject.put((String) object,object);
+        }
+        return jsonObject;
     }
 }
