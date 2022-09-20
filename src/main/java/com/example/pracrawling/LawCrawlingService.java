@@ -129,7 +129,8 @@ public class LawCrawlingService {
 
     private LawDetailDto.ReasonOfRevision getReasonOfRevision(JSONObject laws) {
         ArrayList<String> contents = new ArrayList<>();
-        JSONArray contentArray =laws.getJSONArray("제개정이유내용");
+        Object object = laws.get("제개정이유내용");
+        JSONArray contentArray =ObjectsToJSonArray(object);
         for(int j=0; j<contentArray.length();j++){
             contents.add(contentArray.get(j).toString());
         }
@@ -142,7 +143,9 @@ public class LawCrawlingService {
     private LawDetailDto.Amendment getAmendment(JSONObject laws) {
 
         ArrayList<String> contents = new ArrayList<>();
-        JSONArray contentArray = laws.getJSONArray("개정문내용");
+        Object object = laws.get("개정문내용");
+        JSONArray contentArray = ObjectsToJSonArray(object);
+
         for(int j=0; j<contentArray.length();j++){
             contents.add(contentArray.get(j).toString());
         }
@@ -191,10 +194,17 @@ public class LawCrawlingService {
     }
 
     private LawDetailDto.Article getArticle(JSONObject laws) {
-        JSONArray jsonArray = laws.getJSONArray("조문단위");
+        Object object = laws.get("조문단위");
+        JSONArray jsonArray = ObjectsToJSonArray(object);
         ArrayList<LawDetailDto.Article.ArticleDetail> detailArrayList = new ArrayList<>();
         for(int i=0;i<jsonArray.length();i++){
             JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+            ArrayList<String> contents = new ArrayList<>();
+            Object contentObject = jsonObject.get("조문내용");
+            JSONArray contentArray = ObjectsToJSonArray(contentObject);
+            for(int j=0; j<contentArray.length();j++){
+                contents.add(contentArray.get(j).toString());
+            }
             detailArrayList.add(LawDetailDto.Article.ArticleDetail.builder()
                     .date(jsonObject.getInt("조문시행일자"))
                     .isChanged(jsonObject.getString("조문변경여부").equals("Y")?true:false)
@@ -203,53 +213,42 @@ public class LawCrawlingService {
                     .key(jsonObject.getString("조문키"))
                     .number(jsonObject.getInt("조문번호"))
                     .moveBefore(jsonObject.getString("조문이동이전"))
-                    .mobeAfter(jsonObject.getString("조문이동이후"))
-                    .content(jsonObject.getString("조문내용"))
+                    .moveAfter(jsonObject.getString("조문이동이후"))
+                    .content(contents)
                     .build());
         }
         return LawDetailDto.Article.builder()
                 .details(detailArrayList)
                 .build();
     }
+    public JSONArray ObjectsToJSonArray(Object object){
+        JSONArray objects = new JSONArray();
+        if(object instanceof JSONObject){
+            JSONObject jsonObject = (JSONObject) object;
+            objects.put(jsonObject);
+        }else if(object instanceof JSONArray){
+            objects = (JSONArray) object;
+        }else if(object instanceof String){
+            objects.put(object);
+        }
+        return objects;
+    }
 
     public LawDetailDto.BasicInfo getBasicInfo(JSONObject law){
             JSONObject contantJson;
-
             ArrayList<LawDetailDto.BasicInfo.Contact> contacts = new ArrayList<>();
         Object object = law.getJSONObject("연락부서").get("부서단위");
-        if(object instanceof JSONObject){
-            contantJson = law.getJSONObject("연락부서").getJSONObject("부서단위");
-            contacts.add(       LawDetailDto.BasicInfo.Contact.builder()
-                    .departmentUnit(LawDetailDto.BasicInfo.Contact.Unit.builder()
-                            .departmentName(contantJson.getString("소관부처명"))
-                            .code(contantJson.getInt("소관부처코드"))
-                            .key(contantJson.getInt("부서키"))
-                            .name(contantJson.getString("부서명"))
-                            .phoneNumber(contantJson.getString("부서연락처"))
-                            .build())
-                    .build());
-        }else{
-            JSONArray objects = law.getJSONObject("연락부서").getJSONArray("부서단위");
-            for(int i=0;i<objects.length();i++){
-                contantJson = (JSONObject) objects.get(i);
-                contacts.add(      LawDetailDto.BasicInfo.Contact.builder()
-                        .departmentUnit(LawDetailDto.BasicInfo.Contact.Unit.builder()
-                                .departmentName(contantJson.getString("소관부처명"))
-                                .code(contantJson.getInt("소관부처코드"))
-                                .key(contantJson.getInt("부서키"))
-                                .name(contantJson.getString("부서명"))
-                                .phoneNumber(contantJson.getString("부서연락처"))
-                                .build())
-                        .build());
+        JSONArray objects = ObjectsToJSonArray(object);
 
-            }
+        for(int i=0;i<objects.length();i++){
+            contantJson = (JSONObject) objects.get(i);
+            contacts.add( LawDetailDto.BasicInfo.Contact.update(contantJson));
         }
-
 
            return LawDetailDto.BasicInfo.builder()
                     .hepaticJoint(law.getInt("편장절관"))
                     .isChange(law.getString("제명변경여부").equals("Y")?true:false)
-                    .languahe(law.getString("언어"))
+                    .language(law.getString("언어"))
                     .isKorean(law.getString("한글법령여부").equals("Y")?true:false)
                     .revision(law.getString("제개정구분"))
                     .koreaName(law.getString("법령명_한글"))
@@ -275,6 +274,5 @@ public class LawCrawlingService {
         
     }
 
-
-    }
+}
 

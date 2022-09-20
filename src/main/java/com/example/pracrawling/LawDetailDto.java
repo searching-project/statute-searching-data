@@ -147,8 +147,8 @@ public class LawDetailDto {
             String key;
             int number;
             String moveBefore;
-            String content;
             String moveAfter;
+            ArrayList<String> content;
 
         }
 
