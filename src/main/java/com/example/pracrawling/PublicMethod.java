@@ -34,4 +34,18 @@ public class PublicMethod {
         return keys.contains(key) ? object.get(key) : null;
     }
 
+    public static String ObjectToString(Object object){
+        String result = null;
+        if(object instanceof String){
+            return (String) object;
+        } else if (object instanceof Integer) {
+           return Integer.toString((Integer) object);
+        } else if(object instanceof Long){
+            return Long.toString((Long) object);
+        } else if (object==null) return null;
+        else if(object.equals(null)) return null;
+
+        return (String) object;
+    }
+
 }
