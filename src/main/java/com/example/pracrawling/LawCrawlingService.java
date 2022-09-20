@@ -71,11 +71,209 @@ public class LawCrawlingService {
 
             System.out.println(id +" "+ serialNumber +" "+ link);
             link = link.replace("HTML", "XML");
+            System.out.println(getDetail(baseURL+link));
         }
 
 
         return jsonPrintString = jsonObject.toString();
 
+
+
+    }
+    @Transactional
+    public String getDetail(String u) throws IOException {
+        URL url = new URL(u);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestProperty("Content-Type","application/json");
+        conn.setRequestMethod("GET");
+        conn.connect();
+        StringBuffer result = new StringBuffer();
+        String jsonPrintString = null;
+
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(conn.getInputStream());
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedInputStream, "UTF-8"));
+        String returnLine;
+        while((returnLine = bufferedReader.readLine()) != null) {
+            result.append(returnLine);
+        }
+
+        JSONObject jsonObject = XML.toJSONObject(result.toString());
+        JSONObject lawSearch = (JSONObject) jsonObject.get("법령");
+
+        Set<String> keys = lawSearch.keySet();
+        JSONObject laws = lawSearch.getJSONObject("기본정보");
+        JSONObject laws1 = lawSearch.getJSONObject("조문");
+        JSONObject laws2 = lawSearch.getJSONObject("부칙");
+        JSONObject laws3 = lawSearch.getJSONObject("개정문");
+        JSONObject laws4 = keys.contains("제개정이유")?lawSearch.getJSONObject("제개정이유"):null;
+
+        LawDetailDto.BasicInfo basicInfo = getBasicInfo(laws);
+        LawDetailDto.Article article = getArticle(laws1);
+        LawDetailDto.Addendum addendum = getAddendum(laws2);
+        LawDetailDto.Amendment amendment = getAmendment(laws3);
+        LawDetailDto.ReasonOfRevision reasonOfRevision = getReasonOfRevision(laws4);
+        LawDetailDto lawDetailDto = LawDetailDto.builder()
+//                .key(jsonObject.getString("법령키"))
+                .basicInfo(basicInfo)
+                .article(article)
+                .addendum(addendum)
+                .amendment(amendment)
+                .reasonOfRevision(reasonOfRevision)
+                .build();
+
+
+
+        return jsonPrintString = lawDetailDto.toString();
+
+    }
+
+    private LawDetailDto.ReasonOfRevision getReasonOfRevision(JSONObject laws) {
+        ArrayList<String> contents = new ArrayList<>();
+        JSONArray contentArray =laws.getJSONArray("제개정이유내용");
+        for(int j=0; j<contentArray.length();j++){
+            contents.add(contentArray.get(j).toString());
+        }
+
+        return LawDetailDto.ReasonOfRevision.builder()
+                .content(contents)
+                .build();
+    }
+
+    private LawDetailDto.Amendment getAmendment(JSONObject laws) {
+
+        ArrayList<String> contents = new ArrayList<>();
+        JSONArray contentArray = laws.getJSONArray("개정문내용");
+        for(int j=0; j<contentArray.length();j++){
+            contents.add(contentArray.get(j).toString());
+        }
+        return LawDetailDto.Amendment.builder()
+                .content(contents)
+                .build();
+    }
+
+    private LawDetailDto.Addendum getAddendum(JSONObject laws) {
+        ArrayList<LawDetailDto.Addendum.AddendumDetail> detailArrayList = new ArrayList<>();
+        Object object = laws.get("부칙단위");
+        if(object instanceof JSONObject){
+            JSONObject jsonObject = (JSONObject) object;
+            ArrayList<String> contents = new ArrayList<>();
+            JSONArray contentArray = jsonObject.getJSONArray("부칙내용");
+            for(int j=0; j<contentArray.length();j++){
+                contents.add(contentArray.get(j).toString());
+            }
+            detailArrayList.add(LawDetailDto.Addendum.AddendumDetail.builder()
+                    .date(jsonObject.getInt("부칙공포일자"))
+                    .key(jsonObject.getLong("부칙키"))
+//                            .number(jsonObject.getString("부칙공포번호"))
+                    .content(contents)
+                    .build());
+        }else{
+            JSONArray jsonArray = laws.getJSONArray("부칙단위");
+            for(int i= 0; i<jsonArray.length();i++){
+                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+                ArrayList<String> contents = new ArrayList<>();
+                JSONArray contentArray = jsonObject.getJSONArray("부칙내용");
+                for(int j=0; j<contentArray.length();j++){
+                    contents.add(contentArray.get(j).toString());
+                }
+                detailArrayList.add(LawDetailDto.Addendum.AddendumDetail.builder()
+                        .date(jsonObject.getInt("부칙공포일자"))
+                        .key(jsonObject.getLong("부칙키"))
+//                            .number(jsonObject.getString("부칙공포번호"))
+                        .content(contents)
+                        .build());
+            }
+        }
+
+        return LawDetailDto.Addendum.builder()
+                .details(detailArrayList)
+                .build();
+    }
+
+    private LawDetailDto.Article getArticle(JSONObject laws) {
+        JSONArray jsonArray = laws.getJSONArray("조문단위");
+        ArrayList<LawDetailDto.Article.ArticleDetail> detailArrayList = new ArrayList<>();
+        for(int i=0;i<jsonArray.length();i++){
+            JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+            detailArrayList.add(LawDetailDto.Article.ArticleDetail.builder()
+                    .date(jsonObject.getInt("조문시행일자"))
+                    .isChanged(jsonObject.getString("조문변경여부").equals("Y")?true:false)
+//                    .title(jsonObject.getString("조문제목"))
+                    .isArticle(jsonObject.getString("조문여부").equals("Y")?true:false)
+                    .key(jsonObject.getString("조문키"))
+                    .number(jsonObject.getInt("조문번호"))
+                    .moveBefore(jsonObject.getString("조문이동이전"))
+                    .mobeAfter(jsonObject.getString("조문이동이후"))
+                    .content(jsonObject.getString("조문내용"))
+                    .build());
+        }
+        return LawDetailDto.Article.builder()
+                .details(detailArrayList)
+                .build();
+    }
+
+    public LawDetailDto.BasicInfo getBasicInfo(JSONObject law){
+            JSONObject contantJson;
+
+            ArrayList<LawDetailDto.BasicInfo.Contact> contacts = new ArrayList<>();
+        Object object = law.getJSONObject("연락부서").get("부서단위");
+        if(object instanceof JSONObject){
+            contantJson = law.getJSONObject("연락부서").getJSONObject("부서단위");
+            contacts.add(       LawDetailDto.BasicInfo.Contact.builder()
+                    .departmentUnit(LawDetailDto.BasicInfo.Contact.Unit.builder()
+                            .departmentName(contantJson.getString("소관부처명"))
+                            .code(contantJson.getInt("소관부처코드"))
+                            .key(contantJson.getInt("부서키"))
+                            .name(contantJson.getString("부서명"))
+                            .phoneNumber(contantJson.getString("부서연락처"))
+                            .build())
+                    .build());
+        }else{
+            JSONArray objects = law.getJSONObject("연락부서").getJSONArray("부서단위");
+            for(int i=0;i<objects.length();i++){
+                contantJson = (JSONObject) objects.get(i);
+                contacts.add(      LawDetailDto.BasicInfo.Contact.builder()
+                        .departmentUnit(LawDetailDto.BasicInfo.Contact.Unit.builder()
+                                .departmentName(contantJson.getString("소관부처명"))
+                                .code(contantJson.getInt("소관부처코드"))
+                                .key(contantJson.getInt("부서키"))
+                                .name(contantJson.getString("부서명"))
+                                .phoneNumber(contantJson.getString("부서연락처"))
+                                .build())
+                        .build());
+
+            }
+        }
+
+
+           return LawDetailDto.BasicInfo.builder()
+                    .hepaticJoint(law.getInt("편장절관"))
+                    .isChange(law.getString("제명변경여부").equals("Y")?true:false)
+                    .languahe(law.getString("언어"))
+                    .isKorean(law.getString("한글법령여부").equals("Y")?true:false)
+                    .revision(law.getString("제개정구분"))
+                    .koreaName(law.getString("법령명_한글"))
+                    .phoneNumber(law.getString("전화번호"))
+                    .contact(contacts)
+                    .effectiveDate(law.getInt("시행일자"))
+                    .isEffective(law.getString("공포법령여부").equals("Y")?true:false)
+                    .competentMinistries(LawDetailDto.BasicInfo.Ministries.builder()
+                            .code(law.getJSONObject("소관부처").getInt("소관부처코드"))
+                            .content(law.getJSONObject("소관부처").getString("content"))
+                            .build())
+                    .id(law.getString("법령ID"))
+                    .number(law.getInt("공포번호"))
+                    .chineseName(law.getString("법령명_한자"))
+                    .classification(LawDetailDto.BasicInfo.Classification.builder()
+                            .code(law.getJSONObject("법종구분").getString("법종구분코드"))
+                            .content(law.getJSONObject("법종구분").getString("법종구분코드"))
+                            .build())
+                    .date(law.getInt("공포일자"))
+                    .abbreviation(law.getString("법령명약칭"))
+                    .isEdit(law.getString("별표편집여부").equals("Y")?true:false)
+                    .build();
+        
+    }
 
 
     }
