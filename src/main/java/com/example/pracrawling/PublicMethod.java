@@ -30,4 +30,8 @@ public class PublicMethod {
         }
         return jsonObject;
     }
+    public static Object getOptional(Set<String> keys, String key, JSONObject object ){
+        return keys.contains(key) ? object.get(key) : null;
+    }
+
 }
