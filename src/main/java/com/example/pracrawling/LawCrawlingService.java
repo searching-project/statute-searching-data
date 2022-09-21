@@ -1,5 +1,8 @@
 package com.example.pracrawling;
 
+import com.example.pracrawling.entity.Law;
+import com.example.pracrawling.repository.LawRepository;
+import com.example.pracrawling.service.LawService;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,7 +26,8 @@ import static com.example.pracrawling.PublicMethod.getOptional;
 @Service
 @RequiredArgsConstructor
 public class LawCrawlingService {
-
+    public final LawRepository lawRepository;
+    private final LawService lawService;
     private final String baseURL = "https://www.law.go.kr";
     @Value("${law.oc}")
     String OC;
@@ -73,7 +77,7 @@ public class LawCrawlingService {
             law.get("자법타법여부");
             String link = (String) law.get("법령상세링크");
 
-            System.out.println(id + " " + serialNumber + " " + link);
+//            System.out.println(id + " " + serialNumber + " " + link);
             link = link.replace("HTML", "XML");
             System.out.println(getDetail(baseURL + link));
         }
@@ -118,7 +122,7 @@ public class LawCrawlingService {
         LawDetailDto.ReasonOfRevision reasonOfRevision = laws4 != null ? getReasonOfRevision(laws4) : null;
 
         LawDetailDto lawDetailDto = LawDetailDto.builder()
-                .key((String) getOptional(jsonObject.keySet(),"법령키",jsonObject))
+                .key((String) getOptional(lawSearch.keySet(),"법령키",lawSearch))
                 .basicInfo(basicInfo)
                 .article(article)
                 .addendum(addendum)
