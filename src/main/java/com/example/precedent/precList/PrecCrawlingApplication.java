@@ -5,17 +5,21 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @SpringBootApplication
 public class PrecCrawlingApplication {
     public static void main(String[] args) {
         SpringApplication.run(PrecCrawlingApplication.class, args);
     }
 
-    // 판례 목록 100개씩 가져오기
+    // 판례일련번호 List 가져오기
+    List<String> precSNList;
     @Bean
     public CommandLineRunner demo(PrecListCrawling precListCrawling) {
         return (args) -> {
-            precListCrawling.getDataFromXml("prec", 1);
+            precSNList = precListCrawling.getPrecSNList("prec", 84137);
         };
     }
 }
