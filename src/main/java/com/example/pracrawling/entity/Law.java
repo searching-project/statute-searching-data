@@ -18,7 +18,7 @@ public class Law {
     @Id
     private String lawSN;
     //법령키
-    @Column()
+    @Column(length = 19)
     private String lawKey;
     //법령명
     @Column(nullable = false)
@@ -35,16 +35,16 @@ public class Law {
     @Column
     private boolean koreanYN;
     //법종구분
-    @Column(nullable = false)
+    @Column(nullable = false,length = 16)
     private String type;
     //법종구분코드
-    @Column(nullable = false)
+    @Column(nullable = false,length = 18)
     private String typeCode;
     //공보법령여부
     @Column
     private boolean effectiveYN;
     //공포번호
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     private String publishNumber;
     //공포일자
     @Column(nullable = false)
