@@ -65,8 +65,8 @@ public class PrecListCrawling {
                 page++;
 
                 // 테스트용
-                if (page == 10) {
-                    System.out.println("테스트 파싱 완료 : 페이지 10개만 (판례 1000개)");
+                if (page == 2) {
+                    System.out.println("테스트 파싱 완료 : 페이지 1개만 (판례 100개)");
                     break;
                 }
             }

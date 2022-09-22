@@ -18,63 +18,84 @@ public class Precedent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    @Size(max = 6)
+    @Column(length = 6, nullable = false)
+//    @Column(nullable = false)
+//    @Size(max = 6)
     private String precSN;
 
-    @Column(nullable = false)
-    @Size(max = 255)
+    @Column(length = 255, nullable = false)
+//    @Column(nullable = false)
+//    @Size(max = 255)
     private String caseName;
 
+    @Lob
     @Column(nullable = false)
-    @Size(max = 10000)
+//    @Column(nullable = false)
+//    @Size(max = 10000)
     private String caseNumber;
 
-    @Column(nullable = false)
-    @Size(max = 10)
+    @Column(length = 10, nullable = false)
+//    @Column(nullable = false)
+//    @Size(max = 10)
     private String caseTypeName;
 
-    @Column(nullable = false)
-    @Size(max = 6)
+    @Column(length = 6, nullable = false)
+//    @Column(nullable = false)
+//    @Size(max = 6)
     private String caseTypeCode;
 
-    @Column(nullable = false)
-    @Size(max = 255)
+    @Column(length = 255, nullable = false)
+//    @Column(nullable = false)
+//    @Size(max = 255)
     private String courtName;
 
-    @Column(nullable = false)
-    @Size(max = 6)
+    @Column(length = 6, nullable = false)
+//    @Column(nullable = false)
+//    @Size(max = 6)
     private String courtTypeCode;
 
-    @Column(nullable = false)
-    @Size(max = 10)
+    @Column(length = 10, nullable = false)
+//    @Column(nullable = false)
+//    @Size(max = 10)
     private String judgeState;
 
-    @Column(nullable = false)
-    @Size(max = 8)
+    @Column(length = 8, nullable = false)
+//    @Column(nullable = false)
+//    @Size(max = 8)
     private String judgeDate;
 
-    @Column(nullable = false)
-    @Size(max = 10)
+    @Column(length = 10, nullable = false)
+//    @Column(nullable = false)
+//    @Size(max = 10)
     private String judgeType;
 
+    @Lob
     @Column(nullable = false)
-    @Size(max = 10000)
+//    @Column(nullable = false)
+//    @Size(max = 10000)
     private String judgeHolding;
 
+    @Lob
     @Column(nullable = false)
-    @Size(max = 10000)
+//    @Column(nullable = false)
+//    @Size(max = 10000)
     private String judgeReasoning;
 
+    @Lob
     @Column(nullable = false)
-    @Size(max = 100000)
+//    @Column(nullable = false)
+//    @Size(max = 100000)
     private String content;
 
+    @Lob
     @Column(nullable = false)
-    @Size(max = 10000)
+//    @Column(nullable = false)
+//    @Size(max = 10000)
     private String refArticle;
 
-    @Column(length = 10000, nullable = false)
-    @Size(max = 10000)
+    @Lob
+    @Column(nullable = false)
+//    @Column(nullable = false)
+//    @Size(max = 10000)
     private String refPrecedent;
 }
