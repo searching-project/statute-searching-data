@@ -1,4 +1,4 @@
-package com.example.precedent.precList;
+package com.example.precedent;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,15 +18,6 @@ import java.util.List;
 @Service
 public class PrecListCrawling {
 
-    // tag값(<>) 안의 정보를 가져오는 메소드
-    private static String getTagValue(String tag, Element eElement) {
-        NodeList nlList = eElement.getElementsByTagName(tag).item(0).getChildNodes();
-        Node nValue = (Node) nlList.item(0);
-        if (nValue == null)
-            return null;
-        return nValue.getNodeValue();
-    }
-
     // 판례 일련번호를 가져오는 리스트
     public List<String> getPrecSNList(String target, int totalCnt) {
         try {
@@ -39,10 +30,7 @@ public class PrecListCrawling {
             // 판례일련번호를 담을 빈 리스트 생성
             List<String> precSNList = new ArrayList<>();
 
-//            // 판례상세링크를 담을 빈 리스트 생성
-//            List<String> precDetailUrlList = new ArrayList<>();
-
-            //
+            // 반복문으로 데이터 파싱하기
             while (page <= pages) {
                 System.out.println("진행중 - 현재 파싱중인 페이지 :" + page);
 
@@ -60,12 +48,10 @@ public class PrecListCrawling {
 
                 // root tag
                 doc.getDocumentElement().normalize();
-                System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 
                 // 파싱할 데이터를 감싸고 있는 태그 이름을 넣고,
                 // 파싱할 데이터 목록을 nList에 넣기
                 NodeList nList = doc.getElementsByTagName("prec");
-                System.out.println("파싱할 데이터 수 : " + nList.getLength());
 
                 // 파싱할 데이터들이 담긴 nList 반복문 돌리기
                 for (int temp = 0; temp < nList.getLength(); temp++) {
@@ -73,11 +59,16 @@ public class PrecListCrawling {
                     if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 
                         Element eElement = (Element) nNode;
-//                        precSNList.add(getTagValue("판례일련번호", eElement));
-//                        precDetailUrlList.add(getTagValue("판례상세링크", eElement));
+                        precSNList.add(getTagValue("판례일련번호", eElement));
                     }
                 }
                 page++;
+
+                // 테스트용
+                if (page == 10) {
+                    System.out.println("테스트 파싱 완료 : 페이지 10개만 (판례 1000개)");
+                    break;
+                }
             }
             return precSNList;
         } catch (Exception e) {
@@ -85,4 +76,14 @@ public class PrecListCrawling {
         }
         return null;
     }
+
+    // tag값(<>) 안의 정보를 가져오는 메소드
+    private static String getTagValue(String tag, Element eElement) {
+        NodeList nlList = eElement.getElementsByTagName(tag).item(0).getChildNodes();
+        Node nValue = (Node) nlList.item(0);
+        if (nValue == null)
+            return null;
+        return nValue.getNodeValue();
+    }
+
 }

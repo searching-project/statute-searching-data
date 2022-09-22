@@ -31,6 +31,7 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.15.3'
     implementation files('libs/json-20220320.jar')
 
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 tasks.named('test') {
