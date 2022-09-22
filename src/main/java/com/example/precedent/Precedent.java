@@ -27,44 +27,44 @@ public class Precedent {
     @Column(nullable = false)
     private String caseNumber;
 
-    @Column(length = 10, nullable = false)
+    @Column
     private String caseTypeName;
 
-    @Column(length = 6, nullable = false)
+    @Column
     private String caseTypeCode;
 
-    @Column(length = 255, nullable = false)
+    @Column
     private String courtName;
 
-    @Column(length = 6, nullable = false)
+    @Column
     private String courtTypeCode;
 
-    @Column(length = 10, nullable = false)
+    @Column
     private String judgeState;
 
-    @Column(length = 8, nullable = false)
+    @Column
     private String judgeDate;
 
-    @Column(length = 10, nullable = false)
+    @Column
     private String judgeType;
 
     @Lob
-    @Column(nullable = false)
+    @Column
     private String judgeHolding;
 
     @Lob
-    @Column(nullable = false)
+    @Column
     private String judgeReasoning;
 
     @Lob
-    @Column(nullable = false)
+    @Column
     private String content;
 
     @Lob
-    @Column(nullable = false)
+    @Column
     private String refArticle;
 
     @Lob
-    @Column(nullable = false)
+    @Column
     private String refPrecedent;
 }

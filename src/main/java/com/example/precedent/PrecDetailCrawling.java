@@ -8,6 +8,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -18,12 +19,10 @@ public class PrecDetailCrawling {
 
     public void postPrecDetails(List<String> precSNList) {
         try {
+            List<String> errorIds = new ArrayList<>();
+
             for (String precSN : precSNList) {
 
-                // 웹사이트 오류 - 일치하지 않는 판례 ID
-                if (precSN.equals("226595")) {
-                    continue;
-                }
                 // parsing할 url 만들기
                 String url_material = "https://www.law.go.kr/DRF/lawService.do";
                 String oc = "m_6595";
@@ -51,6 +50,12 @@ public class PrecDetailCrawling {
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element) nNode;
 
+                    // 특이사항시 반복문 넘기기 (판례 ID가 잘못된 경우)
+                    if (eElement.getTagName().equals("Law")) {
+                        errorIds.add(precSN);
+                        continue;
+                    }
+
                     Precedent precCase = Precedent.builder()
                             .precSN(getTagValue("판례정보일련번호", eElement))
                             .caseName(getTagValue("사건명", eElement))
@@ -73,7 +78,7 @@ public class PrecDetailCrawling {
                 }
 
             }
-            System.out.println("판례 데이터 모두 파싱 완료");
+            System.out.println("판례 데이터 모두 파싱 완료" + "찾을 수 없는 판례 id :" + errorIds);
         } catch (Exception e) {
             e.printStackTrace();
         }
