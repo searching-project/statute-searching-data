@@ -56,8 +56,7 @@ public class Law {
     @Column
     private boolean changeYN;
 
-    @SneakyThrows
-    public Law(LawDetailDto lawDetailDto){
+    public Law(LawDetailDto lawDetailDto) throws ParseException {
         LawDetailDto.BasicInfo basicInfo =lawDetailDto.getBasicInfo();
         this.lawSN = basicInfo.getId();
         this.lawKey = lawDetailDto.getKey();
@@ -73,7 +72,6 @@ public class Law {
         this.publishDate = StringToDate(String.valueOf(basicInfo.getDate()));
         this.effectiveDate= StringToDate(String.valueOf(basicInfo.getEffectiveDate()));
         this.changeYN = basicInfo.isChange();
-
     }
 
     public Date StringToDate(String str) throws ParseException {

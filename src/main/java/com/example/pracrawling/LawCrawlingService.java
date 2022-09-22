@@ -2,7 +2,6 @@ package com.example.pracrawling;
 
 import com.example.pracrawling.entity.Law;
 import com.example.pracrawling.repository.LawRepository;
-import com.example.pracrawling.service.LawService;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,25 +16,23 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
+import java.text.ParseException;
 import java.util.Set;
 
-import static com.example.pracrawling.PublicMethod.ObjectsToJSonArray;
 import static com.example.pracrawling.PublicMethod.getOptional;
 
 @Service
 @RequiredArgsConstructor
 public class LawCrawlingService {
     public final LawRepository lawRepository;
-    private final LawService lawService;
-    private final String baseURL = "https://www.law.go.kr";
+    private String BASE_URL = "https://www.law.go.kr";
     @Value("${law.oc}")
     String OC;
 
     @Transactional
     public String getSimpleList(int page) throws IOException {
         StringBuilder sb = new StringBuilder();
-        sb.append(baseURL);
+        sb.append(BASE_URL);
         sb.append("/DRF/lawSearch.do?");
         sb.append("OC=" + OC);
         sb.append("&target=law&type=XML");
@@ -77,9 +74,16 @@ public class LawCrawlingService {
             law.get("자법타법여부");
             String link = (String) law.get("법령상세링크");
 
-//            System.out.println(id + " " + serialNumber + " " + link);
+            System.out.println(id + " " + serialNumber + " " + link);
             link = link.replace("HTML", "XML");
-            System.out.println(getDetail(baseURL + link));
+
+
+            LawDetailDto lawDetailDto= getDetail(BASE_URL + link);
+            try {
+                lawRepository.save(new Law(lawDetailDto));
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
         }
 
 
@@ -89,7 +93,7 @@ public class LawCrawlingService {
     }
 
     @Transactional
-    public String getDetail(String u) throws IOException {
+    public LawDetailDto getDetail(String u) throws IOException {
         URL url = new URL(u);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestProperty("Content-Type", "application/json");
@@ -131,7 +135,9 @@ public class LawCrawlingService {
                 .build();
 
 
-        return jsonPrintString = lawDetailDto.toString();
+
+
+        return lawDetailDto;
 
     }
 
