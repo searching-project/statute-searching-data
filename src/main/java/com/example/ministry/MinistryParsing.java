@@ -50,8 +50,9 @@ public class MinistryParsing {
                     Element eMinElement = (Element) nMinNode;
 
                     // 특이사항시 반복문 넘기기 (ID가 잘못된 경우)
-                    if (eMinElement.getTagName().equals("Law")) {
+                    if (eMinElement.getNodeValue() == null) {
                         errorIds.add(lawSN);
+                        nowParsing++;
                         continue;
                     }
 
