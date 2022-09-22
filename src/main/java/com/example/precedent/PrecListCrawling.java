@@ -25,14 +25,14 @@ public class PrecListCrawling {
             int page = 1;
             int display = 100;
             int pages = totalCnt / display + 1;
-            System.out.println("총 파싱할 페이지 :" + pages);
+            System.out.println("판례 리스트 : 총 파싱할 페이지 :" + pages);
 
             // 판례일련번호를 담을 빈 리스트 생성
             List<String> precSNList = new ArrayList<>();
 
             // 반복문으로 데이터 파싱하기
             while (page <= pages) {
-                System.out.println("진행중 - 현재 파싱중인 페이지 :" + page);
+                System.out.println("리스트 파싱 진행중 - " + page + "/" + pages + "페이지");
 
                 // parsing할 url 만들기
                 String url_material = "https://www.law.go.kr/DRF/lawSearch.do";
@@ -63,12 +63,6 @@ public class PrecListCrawling {
                     }
                 }
                 page++;
-
-                // 테스트용
-                if (page == 2) {
-                    System.out.println("테스트 파싱 완료 : 페이지 1개만 (판례 100개)");
-                    break;
-                }
             }
             return precSNList;
         } catch (Exception e) {

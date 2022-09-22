@@ -4,9 +4,9 @@ package com.example.precedent;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -23,8 +23,8 @@ public class PrecCommandLineRunner implements CommandLineRunner {
 
         List<String> precSNList;
 
-        System.out.println("CommandLineRunner");
         precSNList = precListCrawling.getPrecSNList("prec", 84131);
+//        precSNList = Arrays.asList("226595", "223801");
         precDetailCrawling.postPrecDetails(precSNList);
     }
 }

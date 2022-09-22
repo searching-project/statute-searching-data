@@ -19,6 +19,11 @@ public class PrecDetailCrawling {
     public void postPrecDetails(List<String> precSNList) {
         try {
             for (String precSN : precSNList) {
+
+                // 웹사이트 오류 - 일치하지 않는 판례 ID
+                if (precSN.equals("226595")) {
+                    continue;
+                }
                 // parsing할 url 만들기
                 String url_material = "https://www.law.go.kr/DRF/lawService.do";
                 String oc = "m_6595";
