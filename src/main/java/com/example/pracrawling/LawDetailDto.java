@@ -196,11 +196,13 @@ public class LawDetailDto{
     @NoArgsConstructor
     @Getter
     @Builder
-    static class Article implements LawObject{
+    static public class Article implements LawObject{
         @Override
         public Article update(JSONObject laws){
             Object object = laws.get("조문단위");
+            // 배열로 변환
             JSONArray jsonArray = ObjectsToJSonArray(object);
+            // 조문 상세정보
             ArrayList<LawDetailDto.Article.ArticleDetail> detailArrayList = new ArrayList<>();
             for(int i=0;i<jsonArray.length();i++){
                 JSONObject jsonObject = (JSONObject) jsonArray.get(i);
@@ -230,16 +232,21 @@ public class LawDetailDto{
         @NoArgsConstructor
         @Getter
         @Builder
-        static class ArticleDetail implements LawObject{
-            int date;
-            boolean isChanged;
-            String title;
-            boolean isArticle;
+        static public class ArticleDetail implements LawObject{
             String key;
-            int number;
-            String moveBefore;
-            String moveAfter;
+            String title;
             ArrayList<String> content;
+            int effectiveDate;
+
+            boolean isArticle;
+            //조문키
+
+            int id;
+            String beforeMove;
+            String afterMove;
+            boolean changeYN;
+            String reference;
+
 
             @Override
             public ArticleDetail update(JSONObject jsonObject) {
@@ -250,14 +257,14 @@ public class LawDetailDto{
                 for (int j = 0; j < contentArray.length(); j++) {
                     contents.add(contentArray.get(j).toString());
                 }
-                this.date = jsonObject.getInt("조문시행일자");
-                this.isChanged = jsonObject.getString("조문변경여부").equals("Y");
+                this.effectiveDate = jsonObject.getInt("조문시행일자");
+                this.changeYN = jsonObject.getString("조문변경여부").equals("Y");
                 this.title = (String) getOptional(keys,"조문제목", jsonObject);
                 this.isArticle = jsonObject.getString("조문여부").equals("Y");
                 this.key = ObjectToString(jsonObject.get("조문키"));
-                this.number = jsonObject.getInt("조문번호");
-                this.moveBefore = jsonObject.getString("조문이동이전");
-                this.moveAfter = jsonObject.getString("조문이동이후");
+                this.id = jsonObject.getInt("조문번호");
+                this.beforeMove = jsonObject.getString("조문이동이전");
+                this.afterMove = jsonObject.getString("조문이동이후");
                 this.content = contents;
                 return this;
             }

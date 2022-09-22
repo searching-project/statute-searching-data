@@ -2,7 +2,6 @@ package com.example.pracrawling;
 
 import com.example.pracrawling.entity.Law;
 import com.example.pracrawling.repository.LawRepository;
-import com.example.pracrawling.service.LawService;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -27,7 +26,6 @@ import static com.example.pracrawling.PublicMethod.getOptional;
 @RequiredArgsConstructor
 public class LawCrawlingService {
     public final LawRepository lawRepository;
-    private final LawService lawService;
     private final String baseURL = "https://www.law.go.kr";
     @Value("${law.oc}")
     String OC;
@@ -134,6 +132,8 @@ public class LawCrawlingService {
         return jsonPrintString = lawDetailDto.toString();
 
     }
+
+    //데이터 삽입
 
     private LawDetailDto.ReasonOfRevision getReasonOfRevision(JSONObject laws) {
         LawDetailDto.ReasonOfRevision reasonOfRevision = new LawDetailDto.ReasonOfRevision();
