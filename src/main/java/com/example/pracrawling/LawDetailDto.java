@@ -202,7 +202,7 @@ public class LawDetailDto{
             Object object = laws.get("조문단위");
             // 배열로 변환
             JSONArray jsonArray = ObjectsToJSonArray(object);
-            // 조문 상세정보
+            // 조문단위 리스트
             ArrayList<LawDetailDto.Article.ArticleDetail> detailArrayList = new ArrayList<>();
             for(int i=0;i<jsonArray.length();i++){
                 JSONObject jsonObject = (JSONObject) jsonArray.get(i);
