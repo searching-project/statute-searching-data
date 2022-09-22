@@ -5,6 +5,9 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 **/src/main/resources/application-oc.properties
+**/src/main/resources/application-db-password.properties
+**/src/main/resources/application-db-url.properties
+**/src/main/resources/application-db-username.properties
 
 ### STS ###
 .apt_generated
