@@ -1,6 +1,8 @@
 package com.example.pracrawling;
 
+import com.example.pracrawling.entity.Article;
 import com.example.pracrawling.entity.Law;
+import com.example.pracrawling.repository.ArticleRepository;
 import com.example.pracrawling.repository.LawRepository;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -26,6 +29,7 @@ import static com.example.pracrawling.PublicMethod.getOptional;
 @RequiredArgsConstructor
 public class LawCrawlingService {
     public final LawRepository lawRepository;
+    private final ArticleRepository articleRepository;
     private final String baseURL = "https://www.law.go.kr";
     @Value("${law.oc}")
     String OC;
@@ -80,10 +84,7 @@ public class LawCrawlingService {
             System.out.println(getDetail(baseURL + link));
         }
 
-
         return jsonPrintString = jsonObject.toString();
-
-
     }
 
     @Transactional
@@ -128,7 +129,15 @@ public class LawCrawlingService {
                 .reasonOfRevision(reasonOfRevision)
                 .build();
 
-
+        ArrayList<LawDetailDto.Article.ArticleDetail> articleDetails = lawDetailDto.getArticle().details;
+        for(LawDetailDto.Article.ArticleDetail ad: articleDetails){
+            try {
+                Article a1 = new Article(ad);
+                articleRepository.save(a1);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return jsonPrintString = lawDetailDto.toString();
 
     }

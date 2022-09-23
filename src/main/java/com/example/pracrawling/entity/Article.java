@@ -1,19 +1,25 @@
 package com.example.pracrawling.entity;
 
 import com.example.pracrawling.LawDetailDto;
-import lombok.SneakyThrows;
+import lombok.*;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class Article {
     //조문번호
     @Id
-    private String articleNum;
+    private int articleNum;
     //조문키
     @Column(nullable = false)
     private String key;
@@ -21,6 +27,7 @@ public class Article {
     @Column(nullable = false)
     private String title;
     //조문 내용
+    @Lob
     @Column(nullable = false)
     private String content;
     //시행일자
@@ -55,7 +62,7 @@ public class Article {
             temp.append(contents.get(i));
         }
         this.content = temp.toString();
-        this.effectiveDate = StringToDate(String.valueOf(articleDetail.getEffectiveDate()));
+//        this.effectiveDate = StringToDate(String.valueOf(articleDetail.getEffectiveDate()));
         this.articleYN = articleDetail.isArticleYN();
         this.beforeMove = articleDetail.getBeforeMove();
         this.afterMove = articleDetail.getAfterMove();
