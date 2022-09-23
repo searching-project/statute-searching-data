@@ -6,12 +6,14 @@ import com.example.pracrawling.parsing.AmendmentParsing;
 import com.example.pracrawling.parsing.MinistryParsing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Order(2)
 @Component
-public class LawCommandLineRunner implements CommandLineRunner {
+public class MJCommandLineRunner implements CommandLineRunner {
 
     @Autowired
     LawListParsing lawListParsing;
