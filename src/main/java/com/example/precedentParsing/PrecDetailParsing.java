@@ -1,4 +1,4 @@
-package com.example.precedent;
+package com.example.precedentParsing;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
