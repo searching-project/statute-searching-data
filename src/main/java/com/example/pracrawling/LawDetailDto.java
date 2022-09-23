@@ -34,7 +34,7 @@ public class LawDetailDto{
     @NoArgsConstructor
     @Getter
     @Builder
-    static class BasicInfo implements LawObject{
+    static public class BasicInfo implements LawObject{
 
         @Override
         public BasicInfo update(JSONObject law){
@@ -69,7 +69,7 @@ public class LawDetailDto{
                     .chineseName((String) getOptional(law.keySet(),"법령명_한자",law))
                     .classification(LawDetailDto.BasicInfo.Classification.builder()
                             .code(law.getJSONObject("법종구분").getString("법종구분코드"))
-                            .content(law.getJSONObject("법종구분").getString("법종구분코드"))
+                            .content(law.getJSONObject("법종구분").getString("content"))
                             .build())
                     .date(law.getInt("공포일자"))
                     .abbreviation(law.getString("법령명약칭"))
@@ -176,7 +176,7 @@ public class LawDetailDto{
         @NoArgsConstructor
         @Getter
         @Builder
-        static class Classification implements LawObject{
+        static public class Classification implements LawObject{
             String code;
             String content;
 
