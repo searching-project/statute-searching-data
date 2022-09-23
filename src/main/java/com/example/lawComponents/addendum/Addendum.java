@@ -1,4 +1,4 @@
-package com.example.ministry;
+package com.example.lawComponents.addendum;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,20 +12,21 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Ministry {
+public class Addendum {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
-    private String name;
+    private String publishNumber;
 
     @Column
-    private String code;
+    private String publishDate;
+
+    @Lob
+    @Column
+    private String content;
 
     @Column
-    private String department;
-
-    @Column
-    private String departmentTel;
+    private String lawId;
 }

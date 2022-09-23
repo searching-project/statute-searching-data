@@ -1,6 +1,5 @@
-package com.example.ministry;
+package com.example.lawComponents;
 
-import com.example.precedent.PrecCrawlingApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

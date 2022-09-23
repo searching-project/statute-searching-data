@@ -1,4 +1,4 @@
-package com.example.ministry;
+package com.example.lawComponents.ministry;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
