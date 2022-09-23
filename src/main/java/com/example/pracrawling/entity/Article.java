@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Article {
@@ -24,7 +25,7 @@ public class Article {
     private String content;
     //시행일자
     @Column(nullable = false)
-    private String effectiveDate;
+    private Date effectiveDate;
     //한시일자
 //    @Column(nullable = false)
 //    private String field10;
@@ -44,23 +45,22 @@ public class Article {
     @Column
     private String reference;
 
-    public Article(LawDetailDto lawDetailDto){
-        LawDetailDto.Article articleInfo = lawDetailDto.getArticle();
-        this.articleNum = articleInfo.getDetails().;
-        this.key = lawDetailDto.getKey();
-        this.title = basicInfo.getKoreaName();
-        this.content = basicInfo.getChineseName();
-        this.effectiveDate = basicInfo.getAbbreviation();
-        this.articleYN = basicInfo.getLanguage();
-        this.beforeMove = basicInfo.isKorean();
-        this.afterMove = basicInfo.getClassification().getContent();
-        this.changeYN = basicInfo.getClassification().getCode();
-        this.reference = basicInfo.isEffective();
-        this.publishNumber = String.valueOf(basicInfo.getNumber());
-        this.publishDate = StringToDate(String.valueOf(basicInfo.getDate()));
-        this.effectiveDate= StringToDate(String.valueOf(basicInfo.getEffectiveDate()));
-        this.changeYN = basicInfo.isChange();
-
+    public Article(LawDetailDto.Article.ArticleDetail articleDetail) throws ParseException {
+        this.articleNum = articleDetail.getId();
+        this.key = articleDetail.getKey();
+        this.title = articleDetail.getTitle();
+        ArrayList<String> contents = articleDetail.getContent();
+        StringBuilder temp = new StringBuilder();
+        for (int i = 0; i < contents.size(); i++){
+            temp.append(contents.get(i));
+        }
+        this.content = temp.toString();
+        this.effectiveDate = StringToDate(String.valueOf(articleDetail.getEffectiveDate()));
+        this.articleYN = articleDetail.isArticleYN();
+        this.beforeMove = articleDetail.getBeforeMove();
+        this.afterMove = articleDetail.getAfterMove();
+        this.changeYN = articleDetail.isChangeYN();
+        this.reference = articleDetail.getReference();
     }
 
     public Date StringToDate(String str) throws ParseException {

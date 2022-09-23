@@ -16,6 +16,7 @@ import static com.example.pracrawling.PublicMethod.*;
 @AllArgsConstructor
 @Getter
 @Builder
+
 public class LawDetailDto{
     //법령
 
@@ -24,7 +25,6 @@ public class LawDetailDto{
     Addendum addendum;
     Amendment amendment;
     ReasonOfRevision reasonOfRevision;
-
 
     //법령키
     String key;
@@ -236,12 +236,12 @@ public class LawDetailDto{
             String key;
             String title;
             ArrayList<String> content;
-            int effectiveDate;
+            String effectiveDate;
 
-            boolean isArticle;
+            boolean articleYN;
             //조문키
 
-            int id;
+            String id;
             String beforeMove;
             String afterMove;
             boolean changeYN;
@@ -257,12 +257,12 @@ public class LawDetailDto{
                 for (int j = 0; j < contentArray.length(); j++) {
                     contents.add(contentArray.get(j).toString());
                 }
-                this.effectiveDate = jsonObject.getInt("조문시행일자");
+                this.effectiveDate = jsonObject.getString("조문시행일자");
                 this.changeYN = jsonObject.getString("조문변경여부").equals("Y");
                 this.title = (String) getOptional(keys,"조문제목", jsonObject);
-                this.isArticle = jsonObject.getString("조문여부").equals("Y");
+                this.articleYN = jsonObject.getString("조문여부").equals("Y");
                 this.key = ObjectToString(jsonObject.get("조문키"));
-                this.id = jsonObject.getInt("조문번호");
+                this.id = jsonObject.getString("조문번호");
                 this.beforeMove = jsonObject.getString("조문이동이전");
                 this.afterMove = jsonObject.getString("조문이동이후");
                 this.content = contents;
