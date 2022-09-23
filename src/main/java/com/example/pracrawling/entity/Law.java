@@ -56,6 +56,10 @@ public class Law {
     @Column
     private boolean changeYN;
 
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Ministry ministry;
+
     public Law(LawDetailDto lawDetailDto) throws ParseException {
         LawDetailDto.BasicInfo basicInfo =lawDetailDto.getBasicInfo();
         this.lawSN = basicInfo.getId();

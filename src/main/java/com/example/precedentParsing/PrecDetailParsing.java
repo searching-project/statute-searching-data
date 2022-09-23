@@ -20,6 +20,7 @@ public class PrecDetailParsing {
     public void postPrecDetails(List<String> precSNList) {
         try {
             List<String> errorIds = new ArrayList<>();
+            int nowParsing = 1;
 
             for (String precSN : precSNList) {
 
@@ -30,7 +31,7 @@ public class PrecDetailParsing {
                 String resultType = "XML";
 
                 String url = url_material + "?OC=" + oc + "&target=" + target + "&ID=" + precSN + "&type=" + resultType;
-                System.out.println("현재 파싱중인 페이지 :" + url);
+                System.out.println("파싱 진행 상황 - " + nowParsing + "/" + precSNList.size() + ", 현재 파싱중인 페이지 :" + url);
 
                 // XML 문서에서 DOM 오브젝트 트리를 생성하는 parser 얻기
                 Document doc = DocumentBuilderFactory
@@ -76,7 +77,7 @@ public class PrecDetailParsing {
 
                     precedentRepository.save(precCase);
                 }
-
+                nowParsing++;
             }
             System.out.println("판례 데이터 모두 파싱 완료" + "찾을 수 없는 판례 id :" + errorIds);
         } catch (Exception e) {

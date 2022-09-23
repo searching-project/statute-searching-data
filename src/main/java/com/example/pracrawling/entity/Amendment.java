@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Builder
@@ -28,6 +29,7 @@ public class Amendment {
     @Column
     private String reasonContent;
 
-    @Column
-    private String lawId;
+    @JoinColumn(name = "LAW_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Law law;
 }

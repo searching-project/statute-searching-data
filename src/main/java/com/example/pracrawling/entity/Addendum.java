@@ -28,7 +28,7 @@ public class Addendum {
     @Column
     private String content;
 
-    @JoinColumn(name = "law_id")
-    @ManyToOne(targetEntity = Law.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "LAW_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
     private Law law;
 }
