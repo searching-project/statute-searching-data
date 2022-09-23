@@ -1,9 +1,6 @@
 package com.example.pracrawling;
 
-import com.example.pracrawling.parsing.LawListParsing;
-import com.example.pracrawling.parsing.AddendumParsing;
-import com.example.pracrawling.parsing.AmendmentParsing;
-import com.example.pracrawling.parsing.MinistryParsing;
+import com.example.pracrawling.parsing.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -19,13 +16,7 @@ public class MJCommandLineRunner implements CommandLineRunner {
     LawListParsing lawListParsing;
 
     @Autowired
-    MinistryParsing ministryParsing;
-
-    @Autowired
-    AddendumParsing addendumParsing;
-
-    @Autowired
-    AmendmentParsing amendmentParsing;
+    LawComponentsParsing lawComponentsParsing;
 
     @Override
     public void run(String...args) throws Exception {
@@ -34,13 +25,7 @@ public class MJCommandLineRunner implements CommandLineRunner {
         List<String> lawList;
         lawList = lawListParsing.getLawSNList("law", 5232);
 
-        // 소관부처 DB 작업
-        ministryParsing.postMinistries(lawList);
-
-        // 부칙 DB 작업
-        addendumParsing.postAddendums(lawList);
-
-        // 제개정문 DB 작업
-        amendmentParsing.postAmendments(lawList);
+        // 법령 관련 요소들 DB 작업 - 소관부처, 부칙, 제개정문
+        lawComponentsParsing.postMinistryAndAddendumAndAmendment(lawList);
     }
 }

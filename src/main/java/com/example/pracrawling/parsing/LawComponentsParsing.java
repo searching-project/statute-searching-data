@@ -1,7 +1,13 @@
 package com.example.pracrawling.parsing;
 
-import com.example.pracrawling.repository.AmendmentRepository;
+import com.example.pracrawling.entity.Addendum;
 import com.example.pracrawling.entity.Amendment;
+import com.example.pracrawling.entity.Law;
+import com.example.pracrawling.entity.Ministry;
+import com.example.pracrawling.repository.AddendumRepository;
+import com.example.pracrawling.repository.AmendmentRepository;
+import com.example.pracrawling.repository.LawRepository;
+import com.example.pracrawling.repository.MinistryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
@@ -12,13 +18,17 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class AmendmentParsing {
+public class LawComponentsParsing {
+    private final MinistryRepository ministryRepository;
     private final AmendmentRepository amendmentRepository;
+    private final AddendumRepository addendumRepository;
+    private final LawRepository lawRepository;
 
-    public void postAmendments(List<String> lawSNList) {
+    public void postMinistryAndAddendumAndAmendment(List<String> lawSNList) {
         try {
 
             List<String> errorIds = new ArrayList<>();
@@ -44,6 +54,62 @@ public class AmendmentParsing {
                 // root tag
                 doc.getDocumentElement().normalize();
 
+                // Ministry
+                // 소관부처 파싱
+                NodeList nMinList = doc.getElementsByTagName("연락부서");
+                Node nMinNode = nMinList.item(0);
+                if (nMinNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eMinElement = (Element) nMinNode;
+
+                    // 특이사항시 반복문 넘기기 (ID가 잘못된 경우)
+                    if (eMinElement.getNodeValue() == null) {
+                        errorIds.add(lawSN);
+                        nowParsing++;
+                        continue;
+                    }
+
+                    // 이미 있는 부서인지 확인
+                    Optional<Ministry> presentMinistry = ministryRepository.findByDepartment(getTagValue("부서명", eMinElement));
+
+                    if (presentMinistry.isEmpty()) {
+
+                        Ministry ministry = Ministry.builder()
+                                .name(getTagValue("소관부처명", eMinElement))
+                                .code(getTagValue("소관부처코드", eMinElement))
+                                .department(getTagValue("부서명", eMinElement))
+                                .departmentTel(getTagValue("부서연락처", eMinElement))
+                                .build();
+
+                        ministryRepository.save(ministry);
+                    }
+                }
+
+                // Addendum
+                // 부칙 파싱
+                NodeList nAddList = doc.getElementsByTagName("부칙단위");
+
+                // 파싱할 데이터들이 담긴 nAddList 반복문 돌리기
+                for (int temp = 0; temp < nAddList.getLength(); temp++) {
+                    Node nAddNode = nAddList.item(0);
+                    if (nAddNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eAddElement = (Element) nAddNode;
+
+                        // 부칙이 참조하는 법령 찾기
+                        Law law = isPresentLaw(lawSN);
+
+                        // 부칙 build하기
+                        Addendum addendum = Addendum.builder()
+                                .publishDate(getTagValue("부칙공포일자", eAddElement))
+                                .publishNumber(getTagValue("부칙공포번호", eAddElement))
+                                .content(getTagValue("부칙내용", eAddElement))
+                                .law(law)
+                                .build();
+
+                        addendumRepository.save(addendum);
+                    }
+                }
+
+                // Amendment
                 // 제개정구분 파싱
                 NodeList nAmendTypeList = doc.getElementsByTagName("기본정보");
                 Node nAmendTypeNode = nAmendTypeList.item(0);
@@ -102,7 +168,7 @@ public class AmendmentParsing {
     private static String getTagValue(String tag, Element eElement) {
         NodeList nlList = eElement.getElementsByTagName(tag).item(0).getChildNodes();
 
-        if (tag.equals("개정문내용")||tag.equals("제개정이유내용")) {
+        if (tag.equals("개정문내용")||tag.equals("제개정이유내용")||tag.equals("부칙내용")) {
             StringBuilder nValueString = new StringBuilder();
             for (int i = 0; i <= nlList.getLength(); i++) {
                 Node nValue = (Node) nlList.item(i);
@@ -119,5 +185,10 @@ public class AmendmentParsing {
         if (nValue == null)
             return null;
         return nValue.getNodeValue();
+    }
+
+    private Law isPresentLaw(String lawSN) {
+        Optional<Law> law = lawRepository.findById(lawSN);
+        return law.orElse(null);
     }
 }
