@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PrecCrawlingApplication {
+public class PrecParsingApplication {
     public static void main(String[] args) {
-        SpringApplication.run(PrecCrawlingApplication.class, args);
+        SpringApplication.run(PrecParsingApplication.class, args);
     }
 }

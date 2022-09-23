@@ -13,7 +13,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class PrecDetailCrawling {
+public class PrecDetailParsing {
 
     private final PrecedentRepository precedentRepository;
 

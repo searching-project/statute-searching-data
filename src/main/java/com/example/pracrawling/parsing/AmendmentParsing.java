@@ -1,5 +1,7 @@
-package com.example.lawComponents.amendment;
+package com.example.pracrawling.parsing;
 
+import com.example.pracrawling.repository.AmendmentRepository;
+import com.example.pracrawling.entity.Amendment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;

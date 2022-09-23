@@ -15,7 +15,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class PrecListCrawling {
+public class PrecListParsing {
 
     // 판례 일련번호를 가져오는 리스트
     public List<String> getPrecSNList(String target, int totalCnt) {

@@ -1,7 +1,7 @@
-package com.example.lawComponents.addendum;
+package com.example.pracrawling.parsing;
 
-import com.example.pracrawling.entity.Law;
-import com.example.pracrawling.repository.LawRepository;
+import com.example.pracrawling.repository.MinistryRepository;
+import com.example.pracrawling.entity.Ministry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
@@ -16,11 +16,10 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class AddendumParsing {
-    private final AddendumRepository addendumRepository;
-    private final LawRepository lawRepository;
+public class MinistryParsing {
+    private final MinistryRepository ministryRepository;
 
-    public void postAddendums(List<String> lawSNList) {
+    public void postMinistries(List<String> lawSNList) {
         try {
 
             List<String> errorIds = new ArrayList<>();
@@ -46,27 +45,32 @@ public class AddendumParsing {
                 // root tag
                 doc.getDocumentElement().normalize();
 
-                // 부칙 파싱
-                NodeList nAddList = doc.getElementsByTagName("부칙단위");
+                // 소관부처 파싱
+                NodeList nMinList = doc.getElementsByTagName("연락부서");
+                Node nMinNode = nMinList.item(0);
+                if (nMinNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eMinElement = (Element) nMinNode;
 
-                // 파싱할 데이터들이 담긴 nAddList 반복문 돌리기
-                for (int temp = 0; temp < nAddList.getLength(); temp++) {
-                    Node nAddNode = nAddList.item(0);
-                    if (nAddNode.getNodeType() == Node.ELEMENT_NODE) {
-                        Element eAddElement = (Element) nAddNode;
+                    // 특이사항시 반복문 넘기기 (ID가 잘못된 경우)
+                    if (eMinElement.getNodeValue() == null) {
+                        errorIds.add(lawSN);
+                        nowParsing++;
+                        continue;
+                    }
 
-                        // 부칙이 참조하는 법령 찾기
-                        Law law = isPresentLaw(lawSN);
+                    // 이미 있는 부서인지 확인
+                    Optional<Ministry> presentMinistry = ministryRepository.findByDepartment(getTagValue("부서명", eMinElement));
 
-                        // 부칙 build하기
-                        Addendum addendum = Addendum.builder()
-                                .publishDate(getTagValue("부칙공포일자", eAddElement))
-                                .publishNumber(getTagValue("부칙공포번호", eAddElement))
-                                .content(getTagValue("부칙내용", eAddElement))
-                                .law(law)
+                    if (presentMinistry.isEmpty()) {
+
+                        Ministry ministry = Ministry.builder()
+                                .name(getTagValue("소관부처명", eMinElement))
+                                .code(getTagValue("소관부처코드", eMinElement))
+                                .department(getTagValue("부서명", eMinElement))
+                                .departmentTel(getTagValue("부서연락처", eMinElement))
                                 .build();
 
-                        addendumRepository.save(addendum);
+                        ministryRepository.save(ministry);
                     }
                 }
                 nowParsing++;
@@ -80,28 +84,9 @@ public class AddendumParsing {
     // tag값(<>) 안의 정보를 가져오는 메소드
     private static String getTagValue(String tag, Element eElement) {
         NodeList nlList = eElement.getElementsByTagName(tag).item(0).getChildNodes();
-
-        if (tag.equals("부칙내용")) {
-            StringBuilder nValueString = new StringBuilder();
-            for (int i = 0; i <= nlList.getLength(); i++) {
-                Node nValue = (Node) nlList.item(i);
-                if (nValue == null) {
-                    nValueString.append("\n");
-                    continue;
-                }
-                nValueString.append(nValue.getNodeValue());
-            }
-            return nValueString.toString();
-        }
-
         Node nValue = (Node) nlList.item(0);
         if (nValue == null)
             return null;
         return nValue.getNodeValue();
-    }
-
-    private Law isPresentLaw(String lawSN) {
-        Optional<Law> law = lawRepository.findById(lawSN);
-        return law.orElse(null);
     }
 }

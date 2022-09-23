@@ -1,8 +1,9 @@
-package com.example.lawComponents;
+package com.example.pracrawling;
 
-import com.example.lawComponents.addendum.AddendumParsing;
-import com.example.lawComponents.amendment.AmendmentParsing;
-import com.example.lawComponents.ministry.MinistryParsing;
+import com.example.pracrawling.parsing.LawListParsing;
+import com.example.pracrawling.parsing.AddendumParsing;
+import com.example.pracrawling.parsing.AmendmentParsing;
+import com.example.pracrawling.parsing.MinistryParsing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

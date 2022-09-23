@@ -1,4 +1,4 @@
-package com.example.lawComponents.amendment;
+package com.example.pracrawling.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

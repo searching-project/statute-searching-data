@@ -1,4 +1,4 @@
-package com.example.lawComponents;
+package com.example.pracrawling.parsing;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

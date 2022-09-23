@@ -12,18 +12,18 @@ import java.util.List;
 public class PrecCommandLineRunner implements CommandLineRunner {
 
     @Autowired
-    PrecListCrawling precListCrawling;
+    PrecListParsing precListParsing;
 
     @Autowired
-    PrecDetailCrawling precDetailCrawling;
+    PrecDetailParsing precDetailParsing;
 
     @Override
     public void run(String...args) throws Exception {
 
         List<String> precSNList;
 
-        precSNList = precListCrawling.getPrecSNList("prec", 84131);
+        precSNList = precListParsing.getPrecSNList("prec", 84131);
 //        precSNList = Arrays.asList("226595", "223801");
-        precDetailCrawling.postPrecDetails(precSNList);
+        precDetailParsing.postPrecDetails(precSNList);
     }
 }
