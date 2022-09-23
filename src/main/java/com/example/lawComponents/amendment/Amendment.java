@@ -1,6 +1,5 @@
-package com.example.lawComponents.addendum;
+package com.example.lawComponents.amendment;
 
-import com.example.pracrawling.entity.Law;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,22 +12,22 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Addendum {
+public class Amendment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
-    private String publishNumber;
-
-    @Column
-    private String publishDate;
+    private String type;
 
     @Lob
     @Column
     private String content;
 
-    @JoinColumn(name = "law_id")
-    @ManyToOne(targetEntity = Law.class, fetch = FetchType.LAZY)
-    private Law law;
+    @Lob
+    @Column
+    private String reasonContent;
+
+    @Column
+    private String lawId;
 }
