@@ -155,8 +155,7 @@ public class LawComponentsParsing {
                     addendum = Addendum.builder()
                             .publishDate(getTagValue("부칙공포일자", eAddElement))
                             .publishNumber(getTagValue("부칙공포번호", eAddElement))
-                            .content(new String(getTagValue("부칙내용", eAddElement).getBytes(), StandardCharsets.UTF_8))
-//                            .content(getTagValue("부칙내용", eAddElement))
+                            .content(getTagValue("부칙내용", eAddElement))
                             .law(law)
                             .build();
                 } catch (Exception e) {
@@ -214,12 +213,7 @@ public class LawComponentsParsing {
                     return null;
                 }
 
-                try {
-                    content = new String(getTagValue("개정문내용", eAmendElement).getBytes("euc-kr"), StandardCharsets.UTF_8);
-                } catch (UnsupportedEncodingException e) {
-                    throw new RuntimeException(e);
-                }
-//                content = getTagValue("개정문내용", eAmendElement);
+                content = getTagValue("개정문내용", eAmendElement);
             }
         }
 
@@ -234,8 +228,7 @@ public class LawComponentsParsing {
                     return null;
                 }
 
-                reasonContent = new String(getTagValue("제개정이유내용", eAmendReasonElement).getBytes(), StandardCharsets.UTF_8);
-//                reasonContent = getTagValue("제개정이유내용", eAmendReasonElement);
+                reasonContent = getTagValue("제개정이유내용", eAmendReasonElement);
             }
         }
 
@@ -277,12 +270,7 @@ public class LawComponentsParsing {
                 }
                 nValueString.append(nValue.getNodeValue());
             }
-//            try {
-//                return new String(nValueString.toString().getBytes("euc-kr"), StandardCharsets.UTF_8);
                 return nValueString.toString();
-//            } catch (UnsupportedEncodingException e) {
-//                throw new RuntimeException(e);
-//            }
         }
 
         Node nValue = nlList.item(0);
