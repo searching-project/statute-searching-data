@@ -1,9 +1,7 @@
 package com.example.pracrawling;
 
+import com.example.pracrawling.parsing.LawComponentsParsing;
 import com.example.pracrawling.parsing.LawListParsing;
-import com.example.pracrawling.parsing.AddendumParsing;
-import com.example.pracrawling.parsing.AmendmentParsing;
-import com.example.pracrawling.parsing.MinistryParsing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -16,16 +14,10 @@ import java.util.List;
 public class MJCommandLineRunner implements CommandLineRunner {
 
     @Autowired
-    LawListParsing lawListParsing;
+    private LawListParsing lawListParsing;
 
     @Autowired
-    MinistryParsing ministryParsing;
-
-    @Autowired
-    AddendumParsing addendumParsing;
-
-    @Autowired
-    AmendmentParsing amendmentParsing;
+    private LawComponentsParsing lawComponentsParsing;
 
     @Override
     public void run(String...args) throws Exception {

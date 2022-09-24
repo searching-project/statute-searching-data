@@ -1,6 +1,7 @@
 package com.example.pracrawling.parsing;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -14,6 +15,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class LawListParsing {
+
+    @Value("${law.oc}")
+    String OC;
 
     public List<String> getLawSNList(String target, int totalCnt) {
         try {
@@ -32,9 +36,8 @@ public class LawListParsing {
 
                 // parsing할 url 만들기
                 String url_material = "https://www.law.go.kr/DRF/lawSearch.do";
-                String oc = "m_6595";
                 String resultType = "XML";
-                String url = url_material + "?OC=" + oc + "&target=" + target + "&type=" + resultType + "&display=" + display + "&page=" + page;
+                String url = url_material + "?OC=" + OC + "&target=" + target + "&type=" + resultType + "&display=" + display + "&page=" + page;
 
                 // XML 문서에서 DOM 오브젝트 트리를 생성하는 parser 얻기
                 Document doc = DocumentBuilderFactory
