@@ -18,11 +18,8 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -39,11 +36,14 @@ public class LawComponentsParsing {
 
     public void postLawComponentsOnDB(List<String> lawSNList) {
         try {
-
             List<String> errorIds = new ArrayList<>();
             int nowParsing = 1;
 
+            // 전체 조회용 for문
             for (String lawSN : lawSNList) {
+//            // 디버깅용 및 오류시 범위 지정용 for문
+//            for (int lawSNListIndex = 1704; lawSNListIndex < lawSNList.size(); lawSNListIndex++) {
+//                String lawSN = lawSNList.get(lawSNListIndex);
 
                 // parsing할 url 만들기
                 String url = "https://www.law.go.kr/DRF/lawService.do?OC=" + OC + "&target=law&ID=" + lawSN + "&type=XML&characterSetResults=UTF-8";
@@ -60,13 +60,12 @@ public class LawComponentsParsing {
                 doc.getDocumentElement().normalize();
 
                 System.out.println("파싱 진행 상황 - " + nowParsing + "/" + lawSNList.size() + ", 현재 파싱중인 url :" + url + "-------------------------------------------------------------------------------------------------------------------------");
+//                System.out.println("파싱 진행 상황 - " + lawSNListIndex + "/" + (lawSNList.size()-1) + ", 현재 파싱중인 url :" + url + "-------------------------------------------------------------------------------------------------------------------------");
 
                 // 소관부처 저장하기
                 String minResult = postMinistries(doc);
                 if (minResult == null) {
                     errorIds.add(lawSN);
-                    nowParsing++;
-                    continue;
                 } else {
                     System.out.println(minResult);
                 }
@@ -75,8 +74,6 @@ public class LawComponentsParsing {
                 String addResult = postAddendums(doc, law);
                 if (addResult == null) {
                     errorIds.add(lawSN);
-                    nowParsing++;
-                    continue;
                 } else {
                     System.out.println(addResult);
                 }
@@ -88,7 +85,6 @@ public class LawComponentsParsing {
                 } else {
                     System.out.println(amendResult);
                 }
-
                 nowParsing++;
             }
             System.out.println("부서 데이터 모두 파싱 완료" + "찾을 수 없는 법령 id :" + errorIds);
@@ -99,35 +95,38 @@ public class LawComponentsParsing {
 
     // 법령 - 소관부처 파싱하기
     public String postMinistries(Document doc) {
-
         NodeList nMinList = doc.getElementsByTagName("연락부서");
         if (nMinList.getLength() == 0) {
             return null;
         }
 
-        Node nMinNode = nMinList.item(0);
-        if (nMinNode.getNodeType() == Node.ELEMENT_NODE) {
-            Element eMinElement = (Element) nMinNode;
+        // 파싱할 데이터들이 담긴 nAddList 반복문 돌리기
+        int cnt = 0;
+        for (int i = 0; i < nMinList.getLength(); i++) {
+            Node nMinNode = nMinList.item(i);
+            if (nMinNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element eMinElement = (Element) nMinNode;
 
-            // 특이사항시 반복문 넘기기 (ID가 잘못된 경우)
-            if (eMinElement.getChildNodes() == null) {
-                return null;
-            }
+                // 부서명 내의 정보만 가져오기
+                String minName = getTagValue("부서명", eMinElement);
+                // 부서 태그가 멀쩡히 잘 있을 때
+                if (minName != null) {
+                    // 소관부처가 현재 DB에 저장되어있지 않을 때
+                    if (isPresentMinistry(minName) == null) {
+                        Ministry ministry = Ministry.builder()
+                                .name(getTagValue("소관부처명", eMinElement))
+                                .code(getTagValue("소관부처코드", eMinElement))
+                                .department(getTagValue("부서명", eMinElement))
+                                .departmentTel(getTagValue("부서연락처", eMinElement))
+                                .build();
 
-            // 이미 있는 부서인지 확인
-            String minName = getTagValue("부서명", eMinElement);
-            if (isPresentMinistry(minName) == null) {
-                Ministry ministry = Ministry.builder()
-                        .name(getTagValue("소관부처명", eMinElement))
-                        .code(getTagValue("소관부처코드", eMinElement))
-                        .department(getTagValue("부서명", eMinElement))
-                        .departmentTel(getTagValue("부서연락처", eMinElement))
-                        .build();
-
-                ministryRepository.save(ministry);
+                        ministryRepository.save(ministry);
+                        cnt++;
+                    }
+                }
             }
         }
-        return "소관부처 저장 완료";
+        return "소관부서 " + cnt + "개 저장 완료 --------------------------------------------------------------------------------------------";
     }
 
     // 법령 - 부칙 정보 파싱하여 DB에 저장하기
@@ -139,33 +138,25 @@ public class LawComponentsParsing {
         }
 
         // 파싱할 데이터들이 담긴 nAddList 반복문 돌리기
-        for (int temp = 0; temp < nAddList.getLength(); temp++) {
-            Node nAddNode = nAddList.item(0);
+        int cnt = 0;
+        for (int i = 0; i < nAddList.getLength(); i++) {
+            Node nAddNode = nAddList.item(i);
             if (nAddNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eAddElement = (Element) nAddNode;
 
-                // 특이사항시 반복문 넘기기 (ID가 잘못된 경우)
-                if (eAddElement.getChildNodes() == null) {
-                    return null;
-                }
-
                 // 부칙 build하기
-                Addendum addendum = null;
-                try {
-                    addendum = Addendum.builder()
-                            .publishDate(getTagValue("부칙공포일자", eAddElement))
-                            .publishNumber(getTagValue("부칙공포번호", eAddElement))
-                            .content(getTagValue("부칙내용", eAddElement))
-                            .law(law)
-                            .build();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                Addendum addendum = Addendum.builder()
+                        .publishDate(getTagValue("부칙공포일자", eAddElement))
+                        .publishNumber(getTagValue("부칙공포번호", eAddElement))
+                        .content(getTagValue("부칙내용", eAddElement))
+                        .law(law)
+                        .build();
 
                 addendumRepository.save(addendum);
+                cnt++;
             }
         }
-        return "부칙 저장 완료";
+        return "부칙 " + cnt + "개 저장 완료 --------------------------------------------------------------------------------------------";
     }
 
     // 법령 - 제개정 부분 파싱하여 DB에 저장하기
@@ -195,10 +186,6 @@ public class LawComponentsParsing {
         if (nAmendTypeNode.getNodeType() == Node.ELEMENT_NODE) {
             Element eAmendTypeElement = (Element) nAmendTypeNode;
 
-            // 특이사항시 반복문 넘기기 (ID가 잘못된 경우)
-            if (eAmendTypeElement.getChildNodes() == null) {
-                return null;
-            }
             amendType = getTagValue("제개정구분", eAmendTypeElement);
         }
 
@@ -207,11 +194,6 @@ public class LawComponentsParsing {
         if (nAmendNode != null) {
             if (nAmendNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eAmendElement = (Element) nAmendNode;
-
-                // 특이사항시 반복문 넘기기 (ID가 잘못된 경우)
-                if (eAmendElement.getChildNodes() == null) {
-                    return null;
-                }
 
                 content = getTagValue("개정문내용", eAmendElement);
             }
@@ -222,11 +204,6 @@ public class LawComponentsParsing {
         if (nAmendReasonNode != null) {
             if (nAmendReasonNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eAmendReasonElement = (Element) nAmendReasonNode;
-
-                // 특이사항시 반복문 넘기기 (ID가 잘못된 경우)
-                if (eAmendReasonElement.getChildNodes() == null) {
-                    return null;
-                }
 
                 reasonContent = getTagValue("제개정이유내용", eAmendReasonElement);
             }
@@ -240,11 +217,14 @@ public class LawComponentsParsing {
                 .build();
 
         amendmentRepository.save(amendment);
-        return "제개정문 저장 완료";
+        return "제개정문 저장 완료 ----------------------------------------------------------------------------------------------";
     }
 
     // tag값(<>) 안의 정보를 가져오는 메소드
     public static String getTagValue(String tag, Element eElement) {
+        if (eElement.getElementsByTagName(tag).item(0) == null) {
+            return null;
+        }
         NodeList nlList = eElement.getElementsByTagName(tag).item(0).getChildNodes();
 
         if (tag.equals("개정문내용") || tag.equals("제개정이유내용")) {
@@ -266,11 +246,11 @@ public class LawComponentsParsing {
                 Node nValue = nlList.item(i);
                 if (nValue == null) {
                     nValueString.append("\n");
-                    continue;
+                } else {
+                    nValueString.append(nValue.getNodeValue());
                 }
-                nValueString.append(nValue.getNodeValue());
             }
-                return nValueString.toString();
+            return nValueString.toString();
         }
 
         Node nValue = nlList.item(0);

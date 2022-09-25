@@ -1,12 +1,15 @@
 package com.example.pracrawling.entity;
 
 import com.example.pracrawling.LawDetailDto;
+import com.example.pracrawling.LawMinistryMappingService;
+import com.example.pracrawling.repository.LawMinistryDto;
 import lombok.*;
 
 import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Builder
@@ -56,9 +59,8 @@ public class Law {
     @Column
     private boolean changeYN;
 
-    @JoinColumn
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Ministry ministry;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Ministry> ministries;
 
     public Law(LawDetailDto lawDetailDto) throws ParseException {
         LawDetailDto.BasicInfo basicInfo =lawDetailDto.getBasicInfo();
@@ -86,4 +88,7 @@ public class Law {
         return date;
     }
 
+    public void ministryUpdate(LawMinistryDto lawMinistryDto) {
+        this.ministries = lawMinistryDto.getMinistries();
+    }
 }

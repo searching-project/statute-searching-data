@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Builder
@@ -28,4 +29,7 @@ public class Ministry {
 
     @Column
     private String departmentTel;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Law> laws;
 }
