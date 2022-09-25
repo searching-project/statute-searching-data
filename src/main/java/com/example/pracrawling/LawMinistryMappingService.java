@@ -55,9 +55,7 @@ public class LawMinistryMappingService {
                 System.out.println("파싱 진행 상황 - " + (nowMappingIndex+1) + "/" + lawList.size() + ", 현재 파싱중인 url :" + url + "-------------------------------------------------------------------------------------------------------------------------");
 
                 // 소관부처 저장하기
-                List<Ministry> minResult = postMinistries(doc, law);
-
-                System.out.println("법령 (ID :" + law.getLawSN() + ")에 소관부처" + minResult.size() + "개 매핑 완료 --------------------------------------------------------------------------------------------");
+                System.out.println(postMinistries(doc, law));
                 nowMappingIndex++;
             }
         } catch (Exception e) {
@@ -65,7 +63,7 @@ public class LawMinistryMappingService {
         }
     }
 
-    public List<Ministry> postMinistries(Document doc, Law law) {
+    public String postMinistries(Document doc, Law law) {
 
         NodeList nMinList = doc.getElementsByTagName("연락부서");
         if (nMinList.getLength() == 0) {
@@ -102,7 +100,6 @@ public class LawMinistryMappingService {
 
                         cnt++;
                         ministryRepository.save(newMinistry);
-                        System.out.println("소관부서 " + cnt + "개 저장 완료 --------------------------------------------------------------------------------------------");
                         lawMinistryRepository.save(new LawMinistry(law, newMinistry));
 
                     }
@@ -114,6 +111,6 @@ public class LawMinistryMappingService {
                 }
             }
         }
-        return ministryList;
+        return "법령 ID : " + law.getLawSN() + "에 소관부처 연결 완료 ------------------------------------------------------------";
     }
 }
