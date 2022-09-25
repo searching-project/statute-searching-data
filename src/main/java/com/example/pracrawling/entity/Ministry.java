@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -30,6 +31,6 @@ public class Ministry {
     @Column
     private String departmentTel;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Law> laws;
+    @OneToMany(mappedBy = "ministry")
+    private List<LawMinistry> lawMinistries = new ArrayList<>();
 }

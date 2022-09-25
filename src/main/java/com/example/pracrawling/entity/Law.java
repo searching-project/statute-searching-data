@@ -1,13 +1,12 @@
 package com.example.pracrawling.entity;
 
 import com.example.pracrawling.LawDetailDto;
-import com.example.pracrawling.LawMinistryMappingService;
-import com.example.pracrawling.repository.LawMinistryDto;
 import lombok.*;
 
 import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -59,8 +58,8 @@ public class Law {
     @Column
     private boolean changeYN;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Ministry> ministries;
+    @OneToMany(mappedBy = "law")
+    private List<LawMinistry> lawMinistries = new ArrayList<>();
 
     public Law(LawDetailDto lawDetailDto) throws ParseException {
         LawDetailDto.BasicInfo basicInfo =lawDetailDto.getBasicInfo();
@@ -86,9 +85,5 @@ public class Law {
         // 문자열 -> Date
          Date date = formatter.parse(str);
         return date;
-    }
-
-    public void ministryUpdate(LawMinistryDto lawMinistryDto) {
-        this.ministries = lawMinistryDto.getMinistries();
     }
 }

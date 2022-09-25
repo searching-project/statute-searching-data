@@ -1,9 +1,11 @@
 package com.example.pracrawling;
 
 import com.example.pracrawling.entity.Law;
+import com.example.pracrawling.entity.LawMinistry;
+import com.example.pracrawling.entity.LawMinistryId;
 import com.example.pracrawling.entity.Ministry;
 import com.example.pracrawling.parsing.LawComponentsParsing;
-import com.example.pracrawling.repository.LawMinistryDto;
+import com.example.pracrawling.repository.LawMinistryRepository;
 import com.example.pracrawling.repository.LawRepository;
 import com.example.pracrawling.repository.MinistryRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class LawMinistryMappingService {
     private final LawRepository lawRepository;
     private final MinistryRepository ministryRepository;
     private final LawComponentsParsing lawComponentsParsing;
+    private final LawMinistryRepository lawMinistryRepository;
 
     @Value("${law.oc}")
     String OC;
@@ -52,22 +55,17 @@ public class LawMinistryMappingService {
                 System.out.println("파싱 진행 상황 - " + (nowMappingIndex+1) + "/" + lawList.size() + ", 현재 파싱중인 url :" + url + "-------------------------------------------------------------------------------------------------------------------------");
 
                 // 소관부처 저장하기
-                List<Ministry> minResult = postMinistries(doc);
+                List<Ministry> minResult = postMinistries(doc, law);
 
-                // 법령에 소관부처 업데이트하기
-                LawMinistryDto lawMinistryDto = LawMinistryDto.builder()
-                        .ministries(minResult)
-                        .build();
-
-                law.ministryUpdate(lawMinistryDto);
                 System.out.println("법령 (ID :" + law.getLawSN() + ")에 소관부처" + minResult.size() + "개 매핑 완료 --------------------------------------------------------------------------------------------");
+                nowMappingIndex++;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public List<Ministry> postMinistries(Document doc) {
+    public List<Ministry> postMinistries(Document doc, Law law) {
 
         NodeList nMinList = doc.getElementsByTagName("연락부서");
         if (nMinList.getLength() == 0) {
@@ -105,12 +103,13 @@ public class LawMinistryMappingService {
                         cnt++;
                         ministryRepository.save(newMinistry);
                         System.out.println("소관부서 " + cnt + "개 저장 완료 --------------------------------------------------------------------------------------------");
-                        ministryList.add(newMinistry);
+                        lawMinistryRepository.save(new LawMinistry(law, newMinistry));
+
                     }
 
                     // 2. 소관부처가 현재 DB에 이미 있을 때
                     else {
-                        ministryList.add(isPresent);
+                        lawMinistryRepository.save(new LawMinistry(law, isPresent));
                     }
                 }
             }
