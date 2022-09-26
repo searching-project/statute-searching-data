@@ -1,4 +1,4 @@
-package com.example.ministry;
+package com.example.lawComponents.addendum;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,14 +10,13 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class MinistryParsing {
-    private final MinistryRepository ministryRepository;
+public class AddendumParsing {
+    private final AddendumRepository addendumRepository;
 
-    public void postMinistries(List<String> lawSNList) {
+    public void postAddendums(List<String> lawSNList) {
         try {
 
             List<String> errorIds = new ArrayList<>();
@@ -43,32 +42,23 @@ public class MinistryParsing {
                 // root tag
                 doc.getDocumentElement().normalize();
 
-                // 소관부처 파싱
-                NodeList nMinList = doc.getElementsByTagName("연락부서");
-                Node nMinNode = nMinList.item(0);
-                if (nMinNode.getNodeType() == Node.ELEMENT_NODE) {
-                    Element eMinElement = (Element) nMinNode;
+                // 부칙 파싱
+                NodeList nAddList = doc.getElementsByTagName("부칙단위");
 
-                    // 특이사항시 반복문 넘기기 (ID가 잘못된 경우)
-                    if (eMinElement.getNodeValue() == null) {
-                        errorIds.add(lawSN);
-                        nowParsing++;
-                        continue;
-                    }
+                // 파싱할 데이터들이 담긴 nAddList 반복문 돌리기
+                for (int temp = 0; temp < nAddList.getLength(); temp++) {
+                    Node nAddNode = nAddList.item(0);
+                    if (nAddNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eAddElement = (Element) nAddNode;
 
-                    // 이미 있는 부서인지 확인
-                    Optional<Ministry> presentMinistry = ministryRepository.findByDepartment(getTagValue("부서명", eMinElement));
-
-                    if (presentMinistry.isEmpty()) {
-
-                        Ministry ministry = Ministry.builder()
-                                .name(getTagValue("소관부처명", eMinElement))
-                                .code(getTagValue("소관부처코드", eMinElement))
-                                .department(getTagValue("부서명", eMinElement))
-                                .departmentTel(getTagValue("부서연락처", eMinElement))
+                        Addendum addendum = Addendum.builder()
+                                .publishDate(getTagValue("부칙공포일자", eAddElement))
+                                .publishNumber(getTagValue("부칙공포번호", eAddElement))
+                                .content(getTagValue("부칙내용", eAddElement))
+                                .lawId(lawSN)
                                 .build();
 
-                        ministryRepository.save(ministry);
+                        addendumRepository.save(addendum);
                     }
                 }
                 nowParsing++;
@@ -82,6 +72,20 @@ public class MinistryParsing {
     // tag값(<>) 안의 정보를 가져오는 메소드
     private static String getTagValue(String tag, Element eElement) {
         NodeList nlList = eElement.getElementsByTagName(tag).item(0).getChildNodes();
+
+        if (tag.equals("부칙내용")) {
+            StringBuilder nValueString = new StringBuilder();
+            for (int i = 0; i <= nlList.getLength(); i++) {
+                Node nValue = (Node) nlList.item(i);
+                if (nValue == null) {
+                    nValueString.append("\n");
+                    continue;
+                }
+                nValueString.append(nValue.getNodeValue());
+            }
+            return nValueString.toString();
+        }
+
         Node nValue = (Node) nlList.item(0);
         if (nValue == null)
             return null;
