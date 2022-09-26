@@ -18,7 +18,7 @@ public class PublicMethod {
             objects = (JSONArray) object;
         }else if(object instanceof String){
             objects.put(object);
-        }
+        }else if (object==null) return null;
         return objects;
     }
     public static JSONObject ObjectsToJSonObject(Object object){
@@ -48,4 +48,11 @@ public class PublicMethod {
         return (String) object;
     }
 
+    public static String ArrayToString(JSONArray jsonArray){
+        StringBuilder sb = new StringBuilder();
+        for (int j = 0; j < jsonArray.length(); j++){
+            sb.append(jsonArray.get(j).toString());
+        }
+        return sb.toString();
+    }
 }

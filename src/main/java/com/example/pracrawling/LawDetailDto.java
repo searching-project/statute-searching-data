@@ -1,5 +1,6 @@
 package com.example.pracrawling;
 
+import com.example.pracrawling.entity.Paragraph;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import static com.example.pracrawling.PublicMethod.*;
+import static com.example.pracrawling.PublicMethod.ObjectsToJSonArray;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -225,6 +227,10 @@ public class LawDetailDto{
                     조문이동이전
                     조문이동이후
                     조문내용
+                    항[리스트]
+                            항번호
+                            항내용
+                            호[리스트]
          **/
         ArrayList<ArticleDetail> details = new ArrayList<>();
 
@@ -233,20 +239,20 @@ public class LawDetailDto{
         @Getter
         @Builder
         static public class ArticleDetail implements LawObject{
+            // 조문키
             String key;
             String title;
             ArrayList<String> content;
             int effectiveDate;
 
             boolean articleYN;
-            //조문키
-
+            //조문번호
             int id;
             String beforeMove;
             String afterMove;
             boolean changeYN;
             String reference;
-
+            ArrayList<ParagraphDetail> details = new ArrayList<>();// 항
 
             @Override
             public ArticleDetail update(JSONObject jsonObject) {
@@ -257,6 +263,20 @@ public class LawDetailDto{
                 for (int j = 0; j < contentArray.length(); j++) {
                     contents.add(contentArray.get(j).toString());
                 }
+                // 항추출
+                ArrayList<LawDetailDto.Article.ArticleDetail.ParagraphDetail> paragraphList = new ArrayList<>();
+                Object paragraphObject = getOptional(jsonObject.keySet(), "항", jsonObject);
+                JSONArray paragraphArray = ObjectsToJSonArray(paragraphObject);
+                if (paragraphArray != null){
+                    for (int j = 0; j < paragraphArray.length(); j++) {
+                        JSONObject paragraphArrayElement = (JSONObject) paragraphArray.get(j);
+                        LawDetailDto.Article.ArticleDetail.ParagraphDetail paragraphDetail = new ParagraphDetail();
+                        paragraphList.add(paragraphDetail.update(paragraphArrayElement));
+                    }
+                }else{
+                    paragraphList = null;
+                }
+
                 this.effectiveDate = jsonObject.getInt("조문시행일자");
                 this.changeYN = jsonObject.getString("조문변경여부").equals("Y");
                 this.title = (String) getOptional(keys,"조문제목", jsonObject);
@@ -266,7 +286,54 @@ public class LawDetailDto{
                 this.beforeMove = jsonObject.getString("조문이동이전");
                 this.afterMove = jsonObject.getString("조문이동이후");
                 this.content = contents;
+                this.details = paragraphList;
                 return this;
+            }
+            @AllArgsConstructor
+            @NoArgsConstructor
+            @Getter
+            @Builder
+            static public class ParagraphDetail implements LawObject{
+                String paragraphNum;// 항번호
+                String paragraphContent;// 항내용
+                ArrayList<HoDetail> details = new ArrayList<>();
+                @Override
+                public ParagraphDetail update(JSONObject jsonObject){
+                    ArrayList<LawDetailDto.Article.ArticleDetail.ParagraphDetail.HoDetail> hoList = new ArrayList<>();
+                    Object hoObject = getOptional(jsonObject.keySet(), "호", jsonObject);
+                    JSONArray hoArray = ObjectsToJSonArray(hoObject);
+                    if (hoArray != null){
+                        for (int j = 0; j < hoArray.length(); j++) {
+                            JSONObject hoArrayElement = (JSONObject) hoArray.get(j);
+                            LawDetailDto.Article.ArticleDetail.ParagraphDetail.HoDetail hoDetail = new HoDetail();
+                            hoList.add(hoDetail.update(hoArrayElement));
+                        }
+                    }else{
+                        hoList = null;
+                    }
+                    JSONArray paragraphContentArray = ObjectsToJSonArray(getOptional(jsonObject.keySet(), "항내용", jsonObject));
+                    this.paragraphNum = getOptional(jsonObject.keySet(), "항번호", jsonObject) == null ? null : jsonObject.getString("항번호");
+                    this.paragraphContent = paragraphContentArray == null ? null : ArrayToString(paragraphContentArray);
+                    this.details = hoList;
+                    return this;
+                }
+                @AllArgsConstructor
+                @NoArgsConstructor
+                @Getter
+                @Builder
+                static public class HoDetail implements LawObject{
+                    String hoNum;
+                    String hocontent;
+
+                    @Override
+                    public HoDetail update(JSONObject jsonObject){
+                        JSONArray hoContentArray = ObjectsToJSonArray(getOptional(jsonObject.keySet(), "호내용", jsonObject));
+                        this.hoNum = getOptional(jsonObject.keySet(), "호번호", jsonObject) == null ? null : jsonObject.getString("호번호");
+                        this.hocontent = hoContentArray == null ? null : ArrayToString(hoContentArray);
+                        return this;
+                    }
+                }
+
             }
 
         }

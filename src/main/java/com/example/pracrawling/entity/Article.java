@@ -3,10 +3,7 @@ package com.example.pracrawling.entity;
 import com.example.pracrawling.LawDetailDto;
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
+import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,21 +14,29 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity
 public class Article {
-    //조문번호
-    @Id
-    private int articleNum;
+
     //조문키
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long articleId;
+
     @Column(nullable = false)
-    private String key;
+    private String articleKey;
+    //조문번호
+    @Column(nullable = false)
+    private int articleNum;
+    // 법령ID
+    @Column(nullable = false)
+    private String lawSN;
     //조문 제목
-    @Column(nullable = false)
+    @Column
     private String title;
     //조문 내용
     @Lob
     @Column(nullable = false)
     private String content;
     //시행일자
-    @Column(nullable = false)
+    @Column
     private Date effectiveDate;
     //한시일자
 //    @Column(nullable = false)
@@ -50,11 +55,12 @@ public class Article {
     private boolean changeYN;
     //조문참고자료
     @Column
-    private String reference;
+    private String articleReference;
 
-    public Article(LawDetailDto.Article.ArticleDetail articleDetail) throws ParseException {
+    public Article(LawDetailDto.Article.ArticleDetail articleDetail, String lawSN) throws ParseException {
+        this.lawSN = lawSN;
         this.articleNum = articleDetail.getId();
-        this.key = articleDetail.getKey();
+        this.articleKey = articleDetail.getKey();
         this.title = articleDetail.getTitle();
         ArrayList<String> contents = articleDetail.getContent();
         StringBuilder temp = new StringBuilder();
@@ -67,7 +73,7 @@ public class Article {
         this.beforeMove = articleDetail.getBeforeMove();
         this.afterMove = articleDetail.getAfterMove();
         this.changeYN = articleDetail.isChangeYN();
-        this.reference = articleDetail.getReference();
+        this.articleReference = articleDetail.getReference();
     }
 
     public Date StringToDate(String str) throws ParseException {

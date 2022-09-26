@@ -2,8 +2,11 @@ package com.example.pracrawling;
 
 import com.example.pracrawling.entity.Article;
 import com.example.pracrawling.entity.Law;
+import com.example.pracrawling.entity.Paragraph;
 import com.example.pracrawling.repository.ArticleRepository;
+import com.example.pracrawling.repository.HoRepository;
 import com.example.pracrawling.repository.LawRepository;
+import com.example.pracrawling.repository.ParagraphRepository;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,6 +33,8 @@ import static com.example.pracrawling.PublicMethod.getOptional;
 public class LawCrawlingService {
     public final LawRepository lawRepository;
     private final ArticleRepository articleRepository;
+    private final ParagraphRepository paragraphRepository;
+    private final HoRepository hoRepository;
     private final String baseURL = "https://www.law.go.kr";
     @Value("${law.oc}")
     String OC;
@@ -79,9 +84,9 @@ public class LawCrawlingService {
             law.get("자법타법여부");
             String link = (String) law.get("법령상세링크");
 
-//            System.out.println(id + " " + serialNumber + " " + link);
             link = link.replace("HTML", "XML");
-            System.out.println(getDetail(baseURL + link));
+
+            String lawDetailDto= getDetail(baseURL + link);
         }
 
         return jsonPrintString = jsonObject.toString();
@@ -113,7 +118,6 @@ public class LawCrawlingService {
         JSONObject laws2 = lawSearch.getJSONObject("부칙");
         JSONObject laws3 = keys.contains("개정문") ? lawSearch.getJSONObject("개정문") : null;
         JSONObject laws4 = keys.contains("제개정이유") ? lawSearch.getJSONObject("제개정이유") : null;
-
         LawDetailDto.BasicInfo basicInfo = getBasicInfo(laws);
         LawDetailDto.Article article = getArticle(laws1);
         LawDetailDto.Addendum addendum = getAddendum(laws2);
@@ -132,14 +136,26 @@ public class LawCrawlingService {
         ArrayList<LawDetailDto.Article.ArticleDetail> articleDetails = lawDetailDto.getArticle().details;
         for(LawDetailDto.Article.ArticleDetail ad: articleDetails){
             try {
-                Article a1 = new Article(ad);
-                articleRepository.save(a1);
+                Article a1 = new Article(ad, lawDetailDto.getBasicInfo().getId());
+                long IdNum = 1L;
+                // 항 삽입
+                if (ad.details != null){
+                    for(LawDetailDto.Article.ArticleDetail.ParagraphDetail pd : ad.details){
+                        System.out.println(pd.paragraphContent);
+                        Paragraph p1 = new Paragraph(pd, lawDetailDto.getBasicInfo().getId(), IdNum++);
+                        System.out.println(p1.getParagraphContent());
+                        paragraphRepository.save(p1);
+                        // 호삽입
+                    }
+                }
+
+//                articleRepository.save(a1);
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
         }
-        return jsonPrintString = lawDetailDto.toString();
 
+        return jsonPrintString = lawDetailDto.toString();
     }
 
     //데이터 삽입
