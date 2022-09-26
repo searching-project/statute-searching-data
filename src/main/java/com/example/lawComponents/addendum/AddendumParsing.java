@@ -17,6 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class AddendumParsing {
+
     private final AddendumRepository addendumRepository;
     private final LawRepository lawRepository;
 
@@ -54,6 +55,7 @@ public class AddendumParsing {
                     Node nAddNode = nAddList.item(0);
                     if (nAddNode.getNodeType() == Node.ELEMENT_NODE) {
                         Element eAddElement = (Element) nAddNode;
+
 
                         // 부칙이 참조하는 법령 찾기
                         Law law = isPresentLaw(lawSN);
@@ -99,7 +101,6 @@ public class AddendumParsing {
             return null;
         return nValue.getNodeValue();
     }
-
     private Law isPresentLaw(String lawSN) {
         Optional<Law> law = lawRepository.findById(lawSN);
         return law.orElse(null);
