@@ -25,15 +25,12 @@ public class MJCommandLineRunner implements CommandLineRunner {
     @Override
     public void run(String...args) throws Exception {
 
-//        // 법령 id 리스트 가져오기
-//        List<String> lawList;
-//        lawList = lawListParsing.getLawSNList("law", 5232);
-//
-//        System.out.println("lawList = " + lawList);
-////        System.out.println("001444 = " + lawList.indexOf("001444") + "번째 인덱스");
-//
-//        // 법령 관련 요소들 DB 작업 - 소관부처, 부칙, 제개정문
-//        lawComponentsParsing.postLawComponentsOnDB(lawList);
+        // 법령 id 리스트 가져오기
+        List<String> lawList;
+        lawList = lawListParsing.getLawSNList("law", 5232);
+
+        // 법령 관련 요소들 DB 작업 - 소관부처, 부칙, 제개정문
+        lawComponentsParsing.postLawComponentsOnDB(lawList);
 
         // 법령과 부서 매핑하기
         lawMinistryMappingService.mapLawMinistry();

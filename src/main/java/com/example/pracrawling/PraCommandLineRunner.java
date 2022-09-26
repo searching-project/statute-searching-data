@@ -17,10 +17,10 @@ public class PraCommandLineRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//        for (int i = 0; i <= LIST / 20 + 1; i++) {
-//            courseService.getSimpleList(i);
+        for (int i = 0; i <= LIST / 20 + 1; i++) {
+            courseService.getSimpleList(i);
 //              System.out.println(courseService.getSimpleExamList(i));
               System.out.println("order1 실행완료");
-//        }
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.example.pracrawling;
 
 import com.example.pracrawling.entity.Law;
 import com.example.pracrawling.entity.LawMinistry;
-import com.example.pracrawling.entity.LawMinistryId;
 import com.example.pracrawling.entity.Ministry;
 import com.example.pracrawling.parsing.LawComponentsParsing;
 import com.example.pracrawling.repository.LawMinistryRepository;
@@ -18,7 +17,6 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.pracrawling.parsing.LawComponentsParsing.getTagValue;
@@ -65,13 +63,10 @@ public class LawMinistryMappingService {
 
     public String postMinistries(Document doc, Law law) {
 
-        NodeList nMinList = doc.getElementsByTagName("연락부서");
+        NodeList nMinList = doc.getElementsByTagName("부서단위");
         if (nMinList.getLength() == 0) {
             return null;
         }
-
-        // 해당 법령의 소관부처를 담을 List 만들기
-        List<Ministry> ministryList = new ArrayList<>();
 
         // 파싱할 데이터들이 담긴 nAddList 반복문 돌리기
         int cnt = 0;
@@ -98,19 +93,20 @@ public class LawMinistryMappingService {
                                 .departmentTel(getTagValue("부서연락처", eMinElement))
                                 .build();
 
-                        cnt++;
                         ministryRepository.save(newMinistry);
                         lawMinistryRepository.save(new LawMinistry(law, newMinistry));
+                        cnt++;
 
                     }
 
                     // 2. 소관부처가 현재 DB에 이미 있을 때
                     else {
                         lawMinistryRepository.save(new LawMinistry(law, isPresent));
+                        cnt++;
                     }
                 }
             }
         }
-        return "법령 ID : " + law.getLawSN() + "에 소관부처 연결 완료 ------------------------------------------------------------";
+        return "법령 ID : " + law.getLawSN() + "에 소관부처" + cnt + "개 연결 완료 ------------------------------------------------------------";
     }
 }
