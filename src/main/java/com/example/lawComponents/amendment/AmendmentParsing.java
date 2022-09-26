@@ -1,7 +1,5 @@
-package com.example.lawComponents.addendum;
+package com.example.lawComponents.amendment;
 
-import com.example.pracrawling.entity.Law;
-import com.example.pracrawling.repository.LawRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
@@ -12,16 +10,13 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class AddendumParsing {
+public class AmendmentParsing {
+    private final AmendmentRepository amendmentRepository;
 
-    private final AddendumRepository addendumRepository;
-    private final LawRepository lawRepository;
-
-    public void postAddendums(List<String> lawSNList) {
+    public void postAmendments(List<String> lawSNList) {
         try {
 
             List<String> errorIds = new ArrayList<>();
@@ -47,32 +42,54 @@ public class AddendumParsing {
                 // root tag
                 doc.getDocumentElement().normalize();
 
-                // 부칙 파싱
-                NodeList nAddList = doc.getElementsByTagName("부칙단위");
+                // 제개정구분 파싱
+                NodeList nAmendTypeList = doc.getElementsByTagName("기본정보");
+                Node nAmendTypeNode = nAmendTypeList.item(0);
 
-                // 파싱할 데이터들이 담긴 nAddList 반복문 돌리기
-                for (int temp = 0; temp < nAddList.getLength(); temp++) {
-                    Node nAddNode = nAddList.item(0);
-                    if (nAddNode.getNodeType() == Node.ELEMENT_NODE) {
-                        Element eAddElement = (Element) nAddNode;
+                // 제개정 내용 파싱
+                NodeList nAmendList = doc.getElementsByTagName("개정문");
+                Node nAmendNode = nAmendList.item(0);
 
+                // 제개정 이유 내용 파싱
+                NodeList nAmendReasonList = doc.getElementsByTagName("제개정이유");
+                Node nAmendReasonNode = nAmendReasonList.item(0);
 
-                        // 부칙이 참조하는 법령 찾기
-                        Law law = isPresentLaw(lawSN);
+                // 제개정구분 추출
+                String amendType = null;
+                if (nAmendTypeNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eAmendTypeElement = (Element) nAmendTypeNode;
+                    amendType = getTagValue("제개정구분", eAmendTypeElement);
+                }
 
-                        // 부칙 build하기
-                        Addendum addendum = Addendum.builder()
-                                .publishDate(getTagValue("부칙공포일자", eAddElement))
-                                .publishNumber(getTagValue("부칙공포번호", eAddElement))
-                                .content(getTagValue("부칙내용", eAddElement))
-                                .law(law)
-                                .build();
-
-                        addendumRepository.save(addendum);
+                // 개정문내용 추출
+                String content = null;
+                if (nAmendNode != null) {
+                    if (nAmendNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eAmendElement = (Element) nAmendNode;
+                        content = getTagValue("개정문내용", eAmendElement);
                     }
                 }
-                nowParsing++;
-            }
+
+                // 제개정이유내용 추출
+                String reasonContent = null;
+                if (nAmendReasonNode != null) {
+                    if (nAmendReasonNode.getNodeType() == Node.ELEMENT_NODE){
+                        Element eAmendReasonElement = (Element) nAmendReasonNode;
+                        reasonContent = getTagValue("제개정이유내용", eAmendReasonElement);
+                    }
+                }
+
+                Amendment amendment = Amendment.builder()
+                        .type(amendType)
+                        .content(content)
+                        .reasonContent(reasonContent)
+                        .lawId(lawSN)
+                        .build();
+
+                amendmentRepository.save(amendment);
+
+                    nowParsing++;
+                }
             System.out.println("부서 데이터 모두 파싱 완료" + "찾을 수 없는 법령 id :" + errorIds);
         } catch (Exception e) {
             e.printStackTrace();
@@ -83,7 +100,7 @@ public class AddendumParsing {
     private static String getTagValue(String tag, Element eElement) {
         NodeList nlList = eElement.getElementsByTagName(tag).item(0).getChildNodes();
 
-        if (tag.equals("부칙내용")) {
+        if (tag.equals("개정문내용")||tag.equals("제개정이유내용")) {
             StringBuilder nValueString = new StringBuilder();
             for (int i = 0; i <= nlList.getLength(); i++) {
                 Node nValue = (Node) nlList.item(i);
@@ -100,9 +117,5 @@ public class AddendumParsing {
         if (nValue == null)
             return null;
         return nValue.getNodeValue();
-    }
-    private Law isPresentLaw(String lawSN) {
-        Optional<Law> law = lawRepository.findById(lawSN);
-        return law.orElse(null);
     }
 }

@@ -1,7 +1,7 @@
 package com.example.lawComponents;
 
-import com.example.lawComponents.addendum.Addendum;
 import com.example.lawComponents.addendum.AddendumParsing;
+import com.example.lawComponents.amendment.AmendmentParsing;
 import com.example.lawComponents.ministry.MinistryParsing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -21,6 +21,9 @@ public class LawCommandLineRunner implements CommandLineRunner {
     @Autowired
     AddendumParsing addendumParsing;
 
+    @Autowired
+    AmendmentParsing amendmentParsing;
+
     @Override
     public void run(String...args) throws Exception {
 
@@ -29,9 +32,12 @@ public class LawCommandLineRunner implements CommandLineRunner {
         lawList = lawListParsing.getLawSNList("law", 5232);
 
         // 소관부처 DB 작업
-//        ministryParsing.postMinistries(lawList);
+        ministryParsing.postMinistries(lawList);
 
         // 부칙 DB 작업
         addendumParsing.postAddendums(lawList);
+
+        // 제개정문 DB 작업
+        amendmentParsing.postAmendments(lawList);
     }
 }
