@@ -1,9 +1,8 @@
-package com.example.precedent;
+package com.example.precedentParsing;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
@@ -16,7 +15,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class PrecListCrawling {
+public class PrecListParsing {
 
     // 판례 일련번호를 가져오는 리스트
     public List<String> getPrecSNList(String target, int totalCnt) {

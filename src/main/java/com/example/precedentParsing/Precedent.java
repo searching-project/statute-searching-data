@@ -1,4 +1,4 @@
-package com.example.precedent;
+package com.example.precedentParsing;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

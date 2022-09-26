@@ -1,5 +1,6 @@
-package com.example.lawComponents.ministry;
+package com.example.pracrawling.repository;
 
+import com.example.pracrawling.entity.Ministry;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

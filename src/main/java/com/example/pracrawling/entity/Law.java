@@ -6,7 +6,9 @@ import lombok.*;
 import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Builder
@@ -56,6 +58,9 @@ public class Law {
     @Column
     private boolean changeYN;
 
+    @OneToMany(mappedBy = "law")
+    private List<LawMinistry> lawMinistries = new ArrayList<>();
+
     public Law(LawDetailDto lawDetailDto) throws ParseException {
         LawDetailDto.BasicInfo basicInfo =lawDetailDto.getBasicInfo();
         this.lawSN = basicInfo.getId();
@@ -81,5 +86,4 @@ public class Law {
          Date date = formatter.parse(str);
         return date;
     }
-
 }

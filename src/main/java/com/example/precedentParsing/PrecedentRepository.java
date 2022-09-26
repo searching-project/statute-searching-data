@@ -1,4 +1,4 @@
-package com.example.precedent;
+package com.example.precedentParsing;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

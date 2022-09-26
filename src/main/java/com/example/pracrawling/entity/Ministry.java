@@ -1,4 +1,4 @@
-package com.example.lawComponents.ministry;
+package com.example.pracrawling.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -28,4 +30,7 @@ public class Ministry {
 
     @Column
     private String departmentTel;
+
+    @OneToMany(mappedBy = "ministry")
+    private List<LawMinistry> lawMinistries = new ArrayList<>();
 }
