@@ -18,7 +18,7 @@ public class PublicMethod {
             objects = (JSONArray) object;
         }else if(object instanceof String){
             objects.put(object);
-        }else if (object==null) return null;
+        }else if (object==null) return objects;
         return objects;
     }
     public static JSONObject ObjectsToJSonObject(Object object){

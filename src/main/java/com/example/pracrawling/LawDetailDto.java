@@ -267,14 +267,10 @@ public class LawDetailDto{
                 ArrayList<LawDetailDto.Article.ArticleDetail.ParagraphDetail> paragraphList = new ArrayList<>();
                 Object paragraphObject = getOptional(jsonObject.keySet(), "항", jsonObject);
                 JSONArray paragraphArray = ObjectsToJSonArray(paragraphObject);
-                if (paragraphArray != null){
-                    for (int j = 0; j < paragraphArray.length(); j++) {
-                        JSONObject paragraphArrayElement = (JSONObject) paragraphArray.get(j);
-                        LawDetailDto.Article.ArticleDetail.ParagraphDetail paragraphDetail = new ParagraphDetail();
-                        paragraphList.add(paragraphDetail.update(paragraphArrayElement));
-                    }
-                }else{
-                    paragraphList = null;
+                for (int j = 0; j < paragraphArray.length(); j++) {
+                    JSONObject paragraphArrayElement = (JSONObject) paragraphArray.get(j);
+                    LawDetailDto.Article.ArticleDetail.ParagraphDetail paragraphDetail = new ParagraphDetail();
+                    paragraphList.add(paragraphDetail.update(paragraphArrayElement));
                 }
 
                 this.effectiveDate = jsonObject.getInt("조문시행일자");
@@ -302,18 +298,14 @@ public class LawDetailDto{
                     ArrayList<LawDetailDto.Article.ArticleDetail.ParagraphDetail.HoDetail> hoList = new ArrayList<>();
                     Object hoObject = getOptional(jsonObject.keySet(), "호", jsonObject);
                     JSONArray hoArray = ObjectsToJSonArray(hoObject);
-                    if (hoArray != null){
-                        for (int j = 0; j < hoArray.length(); j++) {
-                            JSONObject hoArrayElement = (JSONObject) hoArray.get(j);
-                            LawDetailDto.Article.ArticleDetail.ParagraphDetail.HoDetail hoDetail = new HoDetail();
-                            hoList.add(hoDetail.update(hoArrayElement));
-                        }
-                    }else{
-                        hoList = null;
+                    for (int j = 0; j < hoArray.length(); j++) {
+                        JSONObject hoArrayElement = (JSONObject) hoArray.get(j);
+                        LawDetailDto.Article.ArticleDetail.ParagraphDetail.HoDetail hoDetail = new HoDetail();
+                        hoList.add(hoDetail.update(hoArrayElement));
                     }
                     JSONArray paragraphContentArray = ObjectsToJSonArray(getOptional(jsonObject.keySet(), "항내용", jsonObject));
                     this.paragraphNum = getOptional(jsonObject.keySet(), "항번호", jsonObject) == null ? null : jsonObject.getString("항번호");
-                    this.paragraphContent = paragraphContentArray == null ? null : ArrayToString(paragraphContentArray);
+                    this.paragraphContent = ArrayToString(paragraphContentArray);
                     this.details = hoList;
                     return this;
                 }
@@ -329,7 +321,7 @@ public class LawDetailDto{
                     public HoDetail update(JSONObject jsonObject){
                         JSONArray hoContentArray = ObjectsToJSonArray(getOptional(jsonObject.keySet(), "호내용", jsonObject));
                         this.hoNum = getOptional(jsonObject.keySet(), "호번호", jsonObject) == null ? null : jsonObject.getString("호번호");
-                        this.hocontent = hoContentArray == null ? null : ArrayToString(hoContentArray);
+                        this.hocontent = ArrayToString(hoContentArray);
                         return this;
                     }
                 }

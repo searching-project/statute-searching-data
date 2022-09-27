@@ -1,7 +1,7 @@
 package com.example.pracrawling;
 
 import com.example.pracrawling.entity.Article;
-import com.example.pracrawling.entity.Law;
+import com.example.pracrawling.entity.Ho;
 import com.example.pracrawling.entity.Paragraph;
 import com.example.pracrawling.repository.ArticleRepository;
 import com.example.pracrawling.repository.HoRepository;
@@ -25,7 +25,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Set;
 
-import static com.example.pracrawling.PublicMethod.ObjectsToJSonArray;
 import static com.example.pracrawling.PublicMethod.getOptional;
 
 @Service
@@ -137,19 +136,17 @@ public class LawCrawlingService {
         for(LawDetailDto.Article.ArticleDetail ad: articleDetails){
             try {
                 Article a1 = new Article(ad, lawDetailDto.getBasicInfo().getId());
-                long IdNum = 1L;
+                articleRepository.save(a1);
                 // 항 삽입
-                if (ad.details != null){
-                    for(LawDetailDto.Article.ArticleDetail.ParagraphDetail pd : ad.details){
-                        System.out.println(pd.paragraphContent);
-                        Paragraph p1 = new Paragraph(pd, lawDetailDto.getBasicInfo().getId(), IdNum++);
-                        System.out.println(p1.getParagraphContent());
-                        paragraphRepository.save(p1);
-                        // 호삽입
+                for(LawDetailDto.Article.ArticleDetail.ParagraphDetail pd : ad.details){
+                    Paragraph p1 = new Paragraph(pd, lawDetailDto.getBasicInfo().getId(), a1.getArticleId());
+                    paragraphRepository.save(p1);
+                    // 호삽입
+                    for(LawDetailDto.Article.ArticleDetail.ParagraphDetail.HoDetail hd : pd.details){
+                        Ho h1 = new Ho(hd, lawDetailDto.getBasicInfo().getId(), p1.getParagraphId());
+                        hoRepository.save(h1);
                     }
                 }
-
-//                articleRepository.save(a1);
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }

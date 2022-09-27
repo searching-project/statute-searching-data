@@ -32,8 +32,7 @@ public class Ho {
     private String hoNum;
 
     //호 내용
-    @Lob
-    @Column
+    @Column(length = 10000)
     private String hoContent;
 
     public Ho(LawDetailDto.Article.ArticleDetail.ParagraphDetail.HoDetail hoDetail, String lawSN, Long paragraphId) throws ParseException {

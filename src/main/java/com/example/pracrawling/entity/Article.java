@@ -22,19 +22,23 @@ public class Article {
 
     @Column(nullable = false)
     private String articleKey;
+
     //조문번호
     @Column(nullable = false)
     private int articleNum;
+
     // 법령ID
     @Column(nullable = false)
     private String lawSN;
+
     //조문 제목
     @Column
     private String title;
     //조문 내용
-    @Lob
+
     @Column(nullable = false)
     private String content;
+
     //시행일자
     @Column
     private Date effectiveDate;

@@ -31,8 +31,8 @@ public class Paragraph {
     @Column
     private String paragraphNum;
     //항 내용
-    @Lob
-    @Column
+
+    @Column(length = 10000)
     private String paragraphContent;
 
     public Paragraph(LawDetailDto.Article.ArticleDetail.ParagraphDetail paragraphDetail, String lawSN, Long articleId) throws ParseException {
